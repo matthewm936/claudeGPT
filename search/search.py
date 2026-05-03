@@ -23,7 +23,7 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).parent.parent
 KB_ROOT = REPO_ROOT / "user"
-INDEX_PATH = REPO_ROOT / ".search-index.json"
+INDEX_PATH = Path(__file__).parent / ".search-index.json"
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 

@@ -7,7 +7,7 @@ user/
 
 # Search artifacts
 .venv/
-.search-index.json
+search/.search-index.json
 
 # OS / editor
 .DS_Store
