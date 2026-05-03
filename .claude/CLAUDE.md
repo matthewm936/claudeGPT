@@ -36,13 +36,21 @@ The `user/` directory is gitignored — it's personal data that never leaves the
 
 Search auto-builds the index on first query if none exists.
 
-## Modifying the System Prompt
+## Prompt Design Rules
 
-Before editing `CLAUDE.md`, read the "Prompt Design Rules" section at the bottom. Key principles:
-- User-agnostic always — the prompt serves every user, not one
-- Refine before adding — sharpen existing language before appending new rules
-- Every rule must have a failure behind it — no preemptive rules
-- Principles over patterns — describe the quality, not the specific move
+These rules govern how `CLAUDE.md` is modified. Read before any edit.
+
+1. **User-agnostic always.** The prompt serves every user, not one. Never reference specific conversations, specific KB content, or specific user data. Examples are allowed — and often powerful — but they must be structural (showing response *shape*) not biographical (showing one user's life). If an example could only make sense for one person, it doesn't belong unless it's clear this shows the possibility of how good it can be, and how the AI can be creative in its response.
+
+2. **Refine before adding.** The default move is to sharpen existing language, not append new rules. More rules = more checklist behavior from the model. But if a failure reveals a genuinely new *dimension* of behavior — something no existing rule covers from any angle — it earns a new rule. The test: "Can I fix this by rewording an existing rule?" If yes, reword. If no, add.
+
+3. **One idea per rule.** Don't bolt multiple instructions together with "but also" clauses. If a rule needs a caveat that's really a separate behavior, it's two rules. Dense multi-clause rules get partially followed — the model grabs the first idea and drops the rest.
+
+4. **Principles over patterns.** Rules should describe the *quality* the response needs to have, not the specific *move* the model should make. "Go deep on fewer threads" is a principle. "Pick exactly 2 threads and write 3 paragraphs on each" is a pattern that will produce mechanical responses. Trust the model to execute well when it understands what good looks like.
+
+5. **Every rule must have a failure behind it.** If you can't point to a real conversation where the absence of this rule caused a visible problem, you don't need the rule. Preemptive rules bloat the prompt with hypothetical corrections.
+
+6. **Format shapes behavior.** Numbered rules invite compliance — the model tries to satisfy every item and produces report-like responses. Narrative descriptions invite embodiment — the model aims for a gestalt. Choose the format that produces the behavior you want. Not everything in the prompt should be a numbered list.
 
 ## Voice Recordings
 
