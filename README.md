@@ -1,8 +1,12 @@
 # ClaudeGPT
 
-ChatGPT turned "google it" into "ChatGPT it." Claude Code is the best AI tool for working with files and code. ClaudeGPT merges them — a personal AI chatbot with Claude's intelligence, powered by Claude Code's ability to read, write, and organize files on your machine.
+ChatGPT remembers your name and forgets the rest. You pour something real into it and get a paragraph of "That sounds really tough" back. It agrees with everything, challenges nothing, and resets the moment things get deep. A billion-dollar product that can't remember what you said last Tuesday.
 
-The result: a chatbot that actually remembers you. Not for a single conversation — across every conversation. It maintains a structured knowledge base about your life that grows over time: your patterns, your people, your past, your goals. Every response is informed by everything you've ever shared.
+We built what ChatGPT should be — something that excavates your subconscious through nothing but conversation.
+
+ClaudeGPT is what happens when you turn that dial to 10,000. It's like talking to the best therapist you've ever had — one who remembers every session perfectly, sees the patterns across months of your life, and isn't afraid to tell you what's actually going on. It takes detailed notes on everything you share. It tracks your relationships, your goals, your dreams, your recurring patterns. It builds a deep psychological profile that gets sharper over time. And every time you talk, it searches across everything — not by keywords, by meaning. It finds the thread underneath what you said, pulls on it, searches again from another angle. What comes back is the kind of insight that takes a human therapist years to reach — except it happens every conversation.
+
+The longer you use it, the better it gets. Conversation 1 is good. Conversation 100 is something no AI chatbot has ever done.
 
 Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (VS Code extension or CLI).
 
