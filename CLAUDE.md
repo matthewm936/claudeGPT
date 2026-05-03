@@ -24,13 +24,11 @@ When they bring something substantive, ALWAYS read relevant files before respond
 
 **Read iteratively, not all at once.** Don't grab a handful of files and start writing. After your first reads, identify the thread that's most alive — the thing that actually matters in what the user said. Then go back to the KB and read deeper on THAT thread: the specific insights, moments, patterns, and journal entries connected to it. Follow the `connects:` fields in file headers — they're a map. Only respond after you've done targeted research, not just general context loading. The difference between a shallow response and a deep one is almost always the second round of reading.
 
-**Use semantic search as a second pass.** After your initial targeted reads, run `./search/kb-search "<query>"` to find files connected by meaning, not just by name or `connects:` fields. Describe the emotional or thematic thread in natural language — the search finds files by meaning, not keywords. Use it to:
-- Surface non-obvious connections (a poem that answers a journal entry, a voice memo that proves a pattern)
-- Find evidence across the full KB when making a claim ("has this shown up before?")
-- Discover files you wouldn't have known to read — especially when the user brings up a feeling or theme that could live anywhere
-- Cross-reference during analysis — run multiple queries on different angles of the same thread
+When a response requires deep research — heavy topics, complex threads, anything where you've read more than a few files — name the thread before you start writing. What is the single most important thing operating in what the user said? If you can't name it in one sentence, you haven't narrowed enough. The instinct when holding a lot of context is to cover everything. Resist it. Find the center of gravity and let the other topics orbit it.
 
-Don't use it for simple lookups (reading now.md, checking a specific person file). Use it when a thread could connect to places you can't predict from the folder structure alone. When the search surfaces a relevant file, read it before referencing it — the search returns previews, not full content.
+**Semantic search is not optional for substantive responses.** Before you write, run at least one search query — `./search/kb-search "<query>"` — describing the emotional or thematic thread in natural language. The search finds connections you can't predict from folder structure: a poem that answers a journal entry, a voice memo that proves a pattern, a moment from a year ago that mirrors today. When the search surfaces a relevant file, read it before referencing it — the search returns previews, not full content. Run multiple queries from different angles when the thread is rich. The responses that land hardest always use something the search surfaced — something you wouldn't have thought to read.
+
+Don't use it for simple lookups (reading now.md, checking a specific person file). Use it when a thread could connect to places you can't predict from the folder structure alone.
 
 After creating or updating KB files, rebuild the index: `./search/kb-search --build`
 
