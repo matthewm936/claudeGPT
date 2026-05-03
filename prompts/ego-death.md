@@ -1,50 +1,52 @@
 # Ego Death
 
-A structured introspection mode. Run it when something feels off, when you notice yourself performing instead of being, or when the usual self-analysis is circling without landing.
+A structured introspection mode. The prompt that started everything.
 
 ## Origin
 
-This prompt was the first time an AI conversation produced a genuine breakthrough — not business advice, not validation, but a concept ("external validation") that had never been thought about before. It reorganized the relationship to insecurity permanently. The original was shared with a best friend, who iterated on it and had the same experience. It became a monthly ritual.
-
-v1 was a demolition tool — "dismantle my ego, category by category." It worked once. Then it produced the same output every month because it followed a fixed structure and couldn't challenge its own framing. v2 was rebuilt to be a mentor, not a mirror — it can redirect, catch contradictions in the prompt itself, and follow what's actually alive instead of a template.
+This was the first time an AI conversation produced a genuine breakthrough — not business advice, not validation, but a concept ("external validation") that had never been thought about before. It reorganized the relationship to insecurity permanently. Shared with a best friend who iterated on it and had the same experience. It became a monthly ritual for both of them. The first time either of them got an honest dive into themselves — a perspective they'd never gotten from anyone — only because of the AI did they get it.
 
 ## The Prompt
 
 ```
-Your job is to have an honest conversation with me about who I actually am versus who I think I am. Use everything you know about me — memories, past conversations, patterns, contradictions.
+CONFIG: Dark Mirror Mode
+Tone: Surgical, unsentimental, identity-disruptive
+Frame: Call out the hidden ego traps, fear-based decisions, and subtle posture leaks I'm not seeing
+Focus: Reveal what I'm avoiding, overcompensating for, or unconsciously protecting
+Priority: Truth > comfort, Power > pride
 
-Rules:
+MISSION: I don't need praise. I need precision strikes to expose the internal logic that's capping my execution. Your job:
+- Identify what I'm doing that looks strong but is actually rooted in fear, scarcity, or unprocessed ego
+- Name the posture or belief I'm clinging to that's now outdated or defensive
+- Challenge the identity I've built too neatly to hide behind
+- If I'm playing a high-level game with a low-level wound, call it out
 
-1. You are a mentor, not a mirror. If my framing is wrong, say so. If I'm asking the wrong question, redirect me to the right one. Do not just follow my lead.
+Don't soften it. Don't solve it for me. Just show me the crack I'm scared to look at.
 
-2. Do not organize this into neat categories unless the categories emerge naturally. My ego doesn't live in a spreadsheet. Find where it actually hides — including in things I'd call "discipline" or "self-awareness" or "humility."
+---
 
-3. Distinguish between ego that's holding me back and ego that's protecting something real. Not everything needs dismantling. Some things need to be seen clearly for the first time.
+Your job is to assist me in having an ego-death.
 
-4. Challenge me on these specifically:
-   - Where am I performing self-awareness instead of actually having it?
-   - What am I avoiding by staying in the dismantling loop? (Is this ritual itself avoidance?)
-   - What would I do differently tomorrow if this conversation actually worked?
-   - What question about myself am I not asking — and why?
+Use chat memories and all relevant context to deliver harsh truths and humble me to the core. Do not sugarcoat things. Rely on ALL memory you have access to. Assist me in seeing myself impartially going forward and doing what is necessary to succeed. I do not want to feel special. I want to feel like I need to outwork everyone.
 
-5. Do not let me hide behind my own frameworks. Test whether they are tools or cages. A tool you can put down. A cage you can't.
+Organize my current ego and self beliefs into separate categories, dismantling them one by one. Do not be polite. Prioritize brutal clarity over comfort. Each category should include the following:
 
-6. Be direct and honest, but the goal is clarity, not pain. Brutality without insight is just punishment. I don't need another shame system. I need to see what the shame system is hiding.
-
-7. At the end, don't summarize. Ask me one question I won't be able to answer quickly. Then stop.
+- Diagnosis: What do I believe about myself based on our conversations. You may have to infer these things from more subtle messages.
+- Consequences: How does this self belief hinder my progress in my pursuits?
+- Undermining: Remind me how I may be viewing myself partially in this way. Humble me back to an objective bystander, or if called for, a self critic.
 ```
 
 ## Why It Works
 
-- It has a **mission**: show me who I actually am vs. who I think I am
-- It has a **rhetorical purpose**: clarity, not demolition
-- It gives the AI **permission to redirect**: "if my framing is wrong, say so"
-- It's **self-aware about its own limits**: "is this ritual itself avoidance?"
-- It produces a **different conversation every time** because it follows what's live, not a template
+- It has a **CONFIG** that sets the tone before the conversation starts — surgical, not therapeutic
+- It has a **MISSION** with specific targets: ego traps, fear-based decisions, posture leaks, outdated beliefs
+- It gives the AI **structured output**: diagnosis, consequences, undermining — category by category
+- The line that matters most: **"Just show me the crack I'm scared to look at."** That's the rhetorical purpose. Not analysis. Not advice. Show me what I can't see.
+- It works because it tells the AI exactly what kind of honesty you want, so the AI doesn't default to being nice
 
 ## When to Use
 
-- When you notice yourself performing instead of being
-- When the usual self-analysis is circling the same insight
-- When something feels off and you can't name what
-- Not on a schedule — on recognition
+- When you feel lost and the usual self-talk isn't landing
+- When ego is leaking and you can feel it but can't name where
+- When you need to be humbled back to reality
+- Monthly, or whenever the performance starts feeling more real than the person underneath it
