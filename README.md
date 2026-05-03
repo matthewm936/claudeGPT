@@ -22,8 +22,8 @@ All data stays local. Your `user/` directory is gitignored and never leaves your
 1. Have [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed (VS Code extension or CLI)
 2. Clone and open:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/claudegpt.git
-   cd claudegpt
+   git clone https://github.com/matthewm936/claudeGPT.git
+   cd claudeGPT
    ```
 3. Start talking
 
