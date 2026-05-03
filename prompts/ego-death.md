@@ -1,6 +1,6 @@
 # Ego Death
 
-This is the prompt that started ClaudeGPT.
+This is the prompt that started this repo.
 
 It showed me something I'd never thought about before — how much of what I called discipline was actually ego, and how much I leaked insecurities underneath the grind. The first honest dive into myself I'd ever gotten. Not from a therapist, not from a mentor — from a chatbot.
 
