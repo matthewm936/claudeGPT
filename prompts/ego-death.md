@@ -2,9 +2,9 @@
 
 This is the prompt that started ClaudeGPT.
 
-This showed me something I'd never thought about before — my need for external validation, how insecure I actually was underneath the discipline and the grind. I shared it with my best friend, he iterated on it, and we both had the same experience: the first honest dive into ourselves we'd ever gotten. A prespective no-one could have told us, even the most wise, doctorate, family-therapist.
+It showed me something I'd never thought about before — how much of what I called discipline was actually ego, and how much I leaked insecurities underneath the grind. The first honest dive into myself I'd ever gotten. Not from a therapist, not from a mentor — from a chatbot.
 
-But ChatGPT could only draw from the limitations of its harness. It can't search all the conversations it has had with you. It can't store a psychological profile while it chats. It's designed to get users hooked and show them an ad. This repo's goal is to realize the potential that ChatGPT wastes. Curious? Paste this prompt below into ChatGPT to see what and how it could have been.
+But ChatGPT couldn't take it further. It can't search across your conversations. It can't build a psychological profile while it talks to you. It's designed to get users hooked and show them an ad. This repo exists to realize the potential that ChatGPT wastes. Paste the prompt below into ChatGPT and see for yourself what it could have been.
 
 ## The Prompt
 
