@@ -1,6 +1,6 @@
 # ClaudeGPT
 
-ChatGPT turned "google it" into "ChatGPT it" — and then stopped there. It remembers your name and forgets the rest. You pour something real into it and get a paragraph of "That sounds really tough" back. It agrees with everything, challenges nothing, and resets the moment things get deep. A billion-dollar product that can't remember what you said last Tuesday.
+ChatGPT turned "google it" into "ChatGPT it" — and then stopped there. It remembers your name and forgets the rest. You pour something real into it and get a paragraph of "That sounds really tough" back. It agrees with everything, challenges nothing, and resets the moment things get deep. A billion-dollar product that can't remember what you said last Tuesday then ends by selling a product.
 
 We built what ChatGPT should be — something that excavates your subconscious through nothing but conversation.
 
