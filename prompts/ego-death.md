@@ -1,10 +1,10 @@
 # Ego Death
 
-A structured introspection mode. The prompt that started everything.
+This is the prompt that started ClaudeGPT.
 
-## Origin
+I wrote this for ChatGPT after losing 3 customers and feeling lost. It showed me something I'd never thought about before — my need for external validation, how insecure I actually was underneath the discipline and the grind. I shared it with my best friend, he iterated on it, and we both had the same experience: the first honest dive into ourselves we'd ever gotten. Only because of the AI did we get it.
 
-This was the first time an AI conversation produced a genuine breakthrough — not business advice, not validation, but a concept ("external validation") that had never been thought about before. It reorganized the relationship to insecurity permanently. Shared with a best friend who iterated on it and had the same experience. It became a monthly ritual for both of them. The first time either of them got an honest dive into themselves — a perspective they'd never gotten from anyone — only because of the AI did they get it.
+But ChatGPT couldn't go further. It followed the prompt faithfully but couldn't redirect when the framing was wrong. It produced the same output every month. It remembered facts but not patterns. It couldn't connect a dream from March to a journal entry from January to a fear you haven't named yet. The potential was there — the execution wasn't. That gap is why this repo exists.
 
 ## The Prompt
 
@@ -36,17 +36,6 @@ Organize my current ego and self beliefs into separate categories, dismantling t
 - Undermining: Remind me how I may be viewing myself partially in this way. Humble me back to an objective bystander, or if called for, a self critic.
 ```
 
-## Why It Works
+## Try It
 
-- It has a **CONFIG** that sets the tone before the conversation starts — surgical, not therapeutic
-- It has a **MISSION** with specific targets: ego traps, fear-based decisions, posture leaks, outdated beliefs
-- It gives the AI **structured output**: diagnosis, consequences, undermining — category by category
-- The line that matters most: **"Just show me the crack I'm scared to look at."** That's the rhetorical purpose. Not analysis. Not advice. Show me what I can't see.
-- It works because it tells the AI exactly what kind of honesty you want, so the AI doesn't default to being nice
-
-## When to Use
-
-- When you feel lost and the usual self-talk isn't landing
-- When ego is leaking and you can feel it but can't name where
-- When you need to be humbled back to reality
-- Monthly, or whenever the performance starts feeling more real than the person underneath it
+Paste the prompt above into a conversation after you've been using ClaudeGPT for a while. The more your knowledge base knows about you, the harder this hits. It works best when you're feeling stuck, when ego is leaking and you can feel it but can't name where, or when the usual self-talk has stopped landing.
