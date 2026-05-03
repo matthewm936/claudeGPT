@@ -2,7 +2,7 @@
 
 This is the prompt that started this repo.
 
-It showed me something I'd never thought about before — how much of what I called discipline was actually ego, and how much I leaked insecurities underneath the grind. The first honest dive into myself I'd ever gotten. Not from a therapist, not from a mentor — from a chatbot.
+It showed me something I'd never thought about before — how much of what I called discipline was actually ego, and how much I leaked insecurities underneath the grind. The first honest dive into myself I'd ever gotten. Not from a therapist, not from a mentor.
 
 But ChatGPT couldn't take it further. It can't search across your conversations. It can't build a psychological profile while it talks to you. It's designed to get users hooked and show them an ad. This repo exists to realize the potential that ChatGPT wastes. Paste the prompt below into ChatGPT and see for yourself what it could have been.
 
