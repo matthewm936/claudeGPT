@@ -1,0 +1,18 @@
+# Personal data — never tracked
+user/
+
+# Claude Code (settings, memory, etc.)
+.claude/
+!.claude/CLAUDE.md
+
+# Search artifacts
+.venv/
+.search-index.json
+
+# OS / editor
+.DS_Store
+.vscode/
+*.swp
+*.swo
+*~
+.env
