@@ -1,14 +1,14 @@
 # ClaudeGPT
 
-Turn [Claude Code](https://docs.anthropic.com/en/docs/claude-code) into a personal AI that actually knows you.
+ChatGPT turned "google it" into "ChatGPT it." Claude Code is the best AI tool for working with files and code. ClaudeGPT merges them — a personal AI chatbot with Claude's intelligence, powered by Claude Code's ability to read, write, and organize files on your machine.
 
-**This is for Claude Code users.** If you already use Claude Code — the VS Code extension or CLI — this gives it persistent memory about your life. It maintains a structured knowledge base that grows from conversation: your patterns, your people, your past, your goals. Every response is informed by everything you've ever shared, not just the current message.
+The result: a chatbot that actually remembers you. Not for a single conversation — across every conversation. It maintains a structured knowledge base about your life that grows over time: your patterns, your people, your past, your goals. Every response is informed by everything you've ever shared.
 
-If you don't have Claude Code, this isn't the right tool. Claude Code is the runtime.
+Requires [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (VS Code extension or CLI).
 
 ## How It Works
 
-The system prompt ([CLAUDE.md](CLAUDE.md)) teaches Claude Code to:
+A single system prompt ([CLAUDE.md](CLAUDE.md)) teaches Claude Code to:
 
 1. **Recognize what you share** — journal entries, dreams, goals, people, voice memos, creative work, philosophical positions, decisions, moments
 2. **Build a knowledge base** — structured files under `user/` that grow from conversation, organized into four layers (current state, synthesized understanding, records of what happened, your relationship to the world)
