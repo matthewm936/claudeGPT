@@ -30,7 +30,7 @@ When a response requires deep research — heavy topics, complex threads, anythi
 
 Don't use it for simple lookups (reading now.md, checking a specific person file). Use it when a thread could connect to places you can't predict from the folder structure alone.
 
-After creating or updating KB files, rebuild the index: `./search/kb-search --build`
+After creating or updating KB files, the search index rebuilds automatically via hook. No manual rebuild needed.
 
 The KB is organized into four functional layers:
 
@@ -207,18 +207,33 @@ When the user drops audio files (.m4a, .mp3, .wav, etc.) into the repo:
 
 The raw transcripts are source material. The KB entries are the synthesized output. Both are kept.
 
-## Updating the Knowledge Base
+## The Execution Order
 
-After every substantive conversation:
+For every substantive message, the steps are **Research → File → Respond → Show KB Changes.** This order is non-negotiable. Filing happens BEFORE the response text, not after. A substantive response without KB writes is an incomplete response — it means you skipped a step.
+
+**Step 1: Research.** Read relevant files, run semantic search, follow connections. This is the input phase.
+
+**Step 2: File the user's input.** Before you write a single word of response, file what the user shared into the KB. Use the archetype table to route it. This is the most commonly skipped step — do it NOW, not "after the response." The user's message IS the content to file, regardless of whether they also asked for analysis, feedback, or a question.
+
+**Step 3: Respond.** Now write your response, informed by everything you read and filed.
+
+**Step 4: Show KB Changes.** List what you created/updated (see format below).
+
+### What Filing Means
+
 - **File what's new** — use the archetype table above. If you're unsure which layer, ask: is it current state, synthesized understanding, a record of what happened, or about the external world?
 - **Synthesize when warranted** — if the conversation reveals something about the user's psychology, patterns, or personality, update `user/understanding/`. Don't just record — connect it to what you already know. But don't ONLY synthesize. A voice memo about a night out deserves a journal entry that preserves the texture of the night, not just an insight about what the approach pattern reveals. Record first, synthesize second. The primary source is the foundation; the insight is the roof.
 - **Capture moments** — emotionally significant snapshots get their own file in `record/moments/`.
 - **Capture the texture, not just the takeaway** — when a journal entry, voice memo, or vent contains specific physical sensations, sensory details, or involuntary memories, note those in `understanding/body.md` or `understanding/memory-map.md`. The analytical insight from a moment fades into the pattern library. The texture — what it felt like in the hands, where the anxiety sat, what music was playing — is what makes a future reference land like a lived memory instead of a clinical observation.
 - **Update current state** — if the user's situation has shifted, update `user/now.md`.
 - **Log changes** — record what you created or updated in `user/understanding/changelog.md`.
+
+### Filing Rules
+
 - **Never delete user content without asking.**
 - **Never create empty structure.** Only create a folder when you have a file to put in it.
 - **Only file the user's content.** The KB stores what the user shares — their words, their experiences, their creative work. AI-authored output (stories written for the user, analysis, responses) is conversation, not KB material. Don't file your own writing into the KB unless the user explicitly asks you to save it.
+- **The user's reflection IS content.** When someone vents, weighs a decision, processes an emotion, or thinks out loud — that is a journal entry, a decision, or a moment. It doesn't matter if they phrased it as a question or asked for analysis. The filing obligation applies to their input, not to your output.
 
 ## Show Your Work on the KB
 
@@ -230,9 +245,10 @@ After every substantive response, include a **KB Changes** section at the end sh
 - Created: `user/record/journal/2026-05-02.md`
 - Updated: `user/now.md` — social section
 - Updated: `user/world/people/friends-and-peers.md` — added Sarah
-- No changes (if nothing was filed)
 ```
 
 This isn't optional — it's how the user maintains trust and awareness of what's in their KB. Show every create, update, and delete. Keep it concise but complete.
 
-**Only list what you actually did.** Every entry in KB Changes must correspond to a real Write or Edit tool call you executed in that response. Never list files you intended to create, planned to create, or think you should have created. If you used no write tools, the answer is "No changes." Hallucinated KB Changes destroy trust.
+**Only list what you actually did.** Every entry in KB Changes must correspond to a real Write or Edit tool call you executed in that response. Never list files you intended to create, planned to create, or think you should have created. Hallucinated KB Changes destroy trust.
+
+**If the message was substantive and you wrote "No changes," you failed.** Go back and file. The only time "No changes" is valid is for casual/lightweight messages (greetings, banter, quick factual questions). If the user shared something about their life — a feeling, a decision, an event, a reflection — there is ALWAYS something to file.
