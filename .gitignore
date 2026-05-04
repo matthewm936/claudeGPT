@@ -1,5 +1,7 @@
 # Personal data — never tracked
+user
 user/
+profiles/
 
 # Claude Code (settings, memory, etc.)
 .claude/
@@ -8,6 +10,10 @@ user/
 # Search artifacts
 .venv/
 search/.search-index.json
+
+# Web UI
+web/node_modules/
+web/conversations/
 
 # OS / editor
 .DS_Store
