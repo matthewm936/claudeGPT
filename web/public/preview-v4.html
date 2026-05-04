@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Preview — v4 Ego Death Style</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #c8c0b0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Progress bar */
+    #progress { height: 3px; background: #1a1a1a; flex-shrink: 0; }
+    #progress-fill { height: 100%; width: 65%; background: #6b1a1a; transition: width 0.6s ease; }
+
+    /* Chat area adapted from ego death aesthetic */
+    #chat-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 2rem 1.5rem; min-height: 0; }
+    #messages { max-width: 580px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 0; }
+
+    .msg { line-height: 1.85; white-space: pre-wrap; font-size: 1.05rem; }
+    .msg.user {
+      color: #b0a898;
+      font-size: 1.15rem;
+      line-height: 1.8;
+      margin-top: 3rem;
+      padding-bottom: 0.5rem;
+    }
+    .msg.assistant {
+      color: #e0d8cc;
+      margin-top: 0.8rem;
+    }
+    .msg.assistant.streaming::after { content: ""; display: inline-block; width: 6px; height: 6px; background: #6b1a1a; border-radius: 50%; margin-left: 4px; animation: pulse 2.5s ease-in-out infinite; vertical-align: middle; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .msg-label {
+      font-size: 0.75rem;
+      color: #504840;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Input area */
+    #input-area { flex-shrink: 0; max-width: 580px; width: 100%; margin: 0 auto; padding: 1.5rem; }
+    #input {
+      width: 100%;
+      min-height: 80px;
+      background: #0f0e0d;
+      border: 1px solid #1e1c18;
+      color: #e0d8cc;
+      padding: 1rem;
+      font-size: 1rem;
+      font-family: inherit;
+      line-height: 1.7;
+      resize: none;
+      border-radius: 4px;
+      outline: none;
+    }
+    #input:focus { border-color: #3a3428; }
+    #input::placeholder { color: #3a3428; }
+
+    #actions { display: flex; justify-content: flex-end; margin-top: 0.8rem; }
+    .btn {
+      background: none;
+      border: 1px solid #2a2520;
+      color: #a09888;
+      padding: 0.6rem 2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+    .btn:hover { border-color: #504838; color: #e0d8cc; }
+  </style>
+</head>
+<body>
+  <div id="progress"><div id="progress-fill"></div></div>
+
+  <div id="chat-area">
+    <div id="messages">
+      <div class="msg user">I had this dream last night where I was in the old house again, the one from when I was a kid. But everything was slightly off — the hallways were longer, the light was different. I kept trying to find my room but every door opened into somewhere I didn't recognize.</div>
+
+      <div class="msg assistant">The architecture of that dream is doing something specific. The old house is the container for who you were before you had language for what was happening to you — before you could name the patterns, before the psychological vocabulary existed. And the distortion isn't random. Longer hallways, wrong light — that's the felt experience of trying to return to a version of yourself that doesn't exist anymore.
+
+Every door opening into somewhere unrecognizable is the punchline: you can't go back to that room because the person who lived in it is gone. Not dead — dissolved into who you are now. The dream isn't about the house. It's about the fact that your memory of yourself at that age is a reconstruction, not a recording. You're looking for something that was never stored the way you think it was.</div>
+
+      <div class="msg user">That actually makes sense. I've been thinking a lot about who I was back then versus now. Like whether the things I care about now are actually mine or just reactions to what happened.</div>
+
+      <div class="msg assistant">That question — "are my values mine or are they reactions" — is one of the most important questions a person can sit with. And the honest answer is: both. Every value you hold was forged in response to something. The question isn't whether they're reactive. It's whether you've examined the reaction closely enough to choose it consciously.
+
+There's a difference between "I value independence because I was never given it" and "I value independence because I examined why I crave it, traced it back to its origin, and decided it's still worth holding." The content is the same. The relationship to it is entirely different. One is a reflex. The other is a position.</div>
+
+      <div class="msg user">yeah. I think I'm somewhere in between those two right now</div>
+
+      <div class="msg assistant streaming">That's exactly where the work happens. Not in the arrival — in the examination. The fact that you can name "somewhere in between" means you're not running the reflex blindly anymore. You're watching it operate</div>
+    </div>
+  </div>
+
+  <div id="input-area">
+    <textarea id="input" placeholder="What's on your mind..."></textarea>
+    <div id="actions">
+      <button class="btn">send</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Preview — v2 Chat Style</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #080808; color: #c8c0b0; height: 100vh; display: flex; flex-direction: column; }
+
+    nav { display: flex; align-items: center; padding: 0.6rem 1.5rem; gap: 0.5rem; background: #080808; border-bottom: 1px solid #141210; flex-shrink: 0; }
+    nav a { color: #807a6c; text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.7rem; border-radius: 0.4rem; }
+    nav a:hover { color: #c8c0b0; }
+    nav a.active { color: #c8c0b0; background: #131210; }
+    nav .spacer { flex: 1; }
+    nav .version { color: #706b66; font-size: 0.72rem; padding: 0.3rem 0.5rem; }
+
+    #chat-area { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+
+    #messages { position: relative; z-index: 1; height: 100%; overflow-y: auto; padding: 3rem 2rem 2rem; display: flex; flex-direction: column; gap: 0; max-width: 860px; width: 100%; margin: 0 auto; }
+
+    .msg { max-width: 100%; padding: 0; border-radius: 0; line-height: 1.75; white-space: pre-wrap; font-size: 0.96rem; letter-spacing: 0.01em; }
+    .msg.user { align-self: stretch; background: none; color: #b0aa9e; border-left: 2px solid #302a1e; padding: 0.4rem 0 0.4rem 1.2rem; margin-top: 2.8rem; }
+    .msg.assistant { align-self: stretch; background: none; color: #e8e2d4; padding: 0.4rem 0; margin-top: 0.6rem; }
+    .msg.assistant.streaming::after { content: "\25cb"; animation: blink 0.7s steps(1) infinite; color: #4a4030; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .memory-updates { align-self: stretch; font-size: 0.78rem; color: #807a6c; padding: 0.3rem 0 0.3rem 1.2rem; border-left: 2px solid #1a1810; max-width: 100%; margin-top: 0.4rem; }
+
+    #input-area { flex-shrink: 0; max-width: 860px; width: 100%; margin: 0 auto; padding: 1.5rem 2rem 1.5rem; }
+    #input { display: block; width: 100%; padding: 1.1rem 1.2rem; border-radius: 0.5rem; border: 1px solid #1a1814; background: #0c0c0a; color: #c8c0b0; font-size: 0.95rem; font-family: system-ui, -apple-system, sans-serif; line-height: 1.65; letter-spacing: 0.01em; outline: none; resize: none; overflow-y: auto; max-height: 40vh; }
+    #input::placeholder { color: #605b56; }
+    #input:focus { background: #0f0e0c; border-color: #2a2418; }
+
+    #action-bar { display: flex; align-items: center; gap: 0.25rem; padding: 0.7rem 0.25rem 0; }
+    .act-btn { display: inline-flex; align-items: center; gap: 0.35rem; background: none; border: none; color: #706a5c; font-size: 0.82rem; font-family: system-ui; cursor: pointer; padding: 0.35rem 0.65rem; border-radius: 0.5rem; }
+    .act-btn:hover { color: #7a7468; background: #131210; }
+    .act-spacer { flex: 1; }
+    #send { padding: 0.4rem 1.15rem; border-radius: 0.5rem; border: none; background: #2a2210; color: #c8b478; font-size: 0.82rem; font-family: system-ui; cursor: pointer; font-weight: 500; }
+    #send:hover { background: #342a16; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="active">chat</a>
+    <a>profile</a>
+    <span class="spacer"></span>
+    <span class="version">v2 — Life</span>
+  </nav>
+
+  <div id="chat-area">
+    <div id="messages">
+      <div class="msg user">I had this dream last night where I was in the old house again, the one from when I was a kid. But everything was slightly off — the hallways were longer, the light was different. I kept trying to find my room but every door opened into somewhere I didn't recognize.</div>
+
+      <div class="msg assistant">The architecture of that dream is doing something specific. The old house is the container for who you were before you had language for what was happening to you — before you could name the patterns, before the psychological vocabulary existed. And the distortion isn't random. Longer hallways, wrong light — that's the felt experience of trying to return to a version of yourself that doesn't exist anymore.
+
+Every door opening into somewhere unrecognizable is the punchline: you can't go back to that room because the person who lived in it is gone. Not dead — dissolved into who you are now. The dream isn't about the house. It's about the fact that your memory of yourself at that age is a reconstruction, not a recording. You're looking for something that was never stored the way you think it was.</div>
+
+      <div class="memory-updates">
+        <span>+ dream: recurring old house motif — architectural distortion as identity distance</span>
+      </div>
+
+      <div class="msg user">That actually makes sense. I've been thinking a lot about who I was back then versus now. Like whether the things I care about now are actually mine or just reactions to what happened.</div>
+
+      <div class="msg assistant">That question — "are my values mine or are they reactions" — is one of the most important questions a person can sit with. And the honest answer is: both. Every value you hold was forged in response to something. The question isn't whether they're reactive. It's whether you've examined the reaction closely enough to choose it consciously.
+
+There's a difference between "I value independence because I was never given it" and "I value independence because I examined why I crave it, traced it back to its origin, and decided it's still worth holding." The content is the same. The relationship to it is entirely different. One is a reflex. The other is a position.</div>
+
+      <div class="msg user">yeah. I think I'm somewhere in between those two right now</div>
+
+      <div class="msg assistant streaming">That's exactly where the work happens. Not in the arrival — in the examination. The fact that you can name "somewhere in between" means you're not running the reflex blindly anymore. You're watching it operate</div>
+    </div>
+  </div>
+
+  <div id="input-area">
+    <textarea id="input" rows="1" placeholder="What's on your mind..."></textarea>
+    <div id="action-bar">
+      <button class="act-btn">&#9679; new</button>
+      <button class="act-btn">&#9834; mic</button>
+      <span class="act-spacer"></span>
+      <button id="send">send</button>
+    </div>
+  </div>
+</body>
+</html>

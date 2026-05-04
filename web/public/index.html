@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClaudeGPT</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Left: Conversation Sidebar -->
+    <aside id="sidebar">
+      <div id="sidebar-header">
+        <h2>ClaudeGPT</h2>
+        <button id="new-chat-btn" title="New conversation">+ new</button>
+      </div>
+      <div id="conversation-list"></div>
+    </aside>
+
+    <!-- Center: Chat -->
+    <main id="chat-panel">
+      <div id="chat-toolbar">
+        <button id="toggle-sidebar" class="toolbar-btn" title="Toggle sidebar (Cmd+B)">&#9776;</button>
+        <span style="flex:1"></span>
+        <button id="toggle-explorer" class="toolbar-btn" title="Toggle explorer (Cmd+E)">&#9783;</button>
+      </div>
+      <div id="messages"></div>
+      <div id="input-area">
+        <textarea id="chat-input" placeholder="What's on your mind..." rows="1"></textarea>
+        <div id="action-bar">
+          <span style="flex:1"></span>
+          <button id="send-btn">send</button>
+        </div>
+      </div>
+      <!-- Drop zone overlay -->
+      <div id="drop-overlay" class="hidden">
+        <div id="drop-content">Drop files to add to inbox</div>
+      </div>
+    </main>
+
+    <!-- Right: File Explorer + Tabs -->
+    <aside id="explorer-panel">
+      <div id="file-tabs"></div>
+      <div id="file-viewer" class="hidden"></div>
+      <div id="explorer-header">
+        <div id="profile-switcher">
+          <span id="profile-name">—</span>
+          <span id="profile-arrow">&#9662;</span>
+          <div id="profile-dropdown" class="hidden"></div>
+        </div>
+        <div id="inbox-badge" class="hidden" title="Click to process inbox">
+          <span id="inbox-count">0</span> pending
+        </div>
+      </div>
+      <div id="file-tree"></div>
+    </aside>
+  </div>
+
+  <script src="lib/marked.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
