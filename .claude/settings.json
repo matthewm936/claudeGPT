@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./search/kb-search --build 2>/dev/null",
+            "command": "kb-search --build 2>/dev/null",
             "async": true,
             "timeout": 60
           }
@@ -21,8 +21,8 @@
       "Write",
       "Glob",
       "Grep",
-      "Bash(./search/kb-search *)",
-      "Bash(./search/kb-search --build)",
+      "Bash(kb-search *)",
+      "Bash(kb-search --build)",
       "Bash(whisper *)",
       "Bash(git status*)",
       "Bash(git diff*)",

@@ -1,0 +1,38 @@
+#explorer-panel { background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+
+#explorer-header { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: #a09a8e; }
+
+#inbox-badge { background: var(--warning); color: var(--bg); padding: 0.15rem 0.5rem; border-radius: 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer; text-transform: none; letter-spacing: 0; }
+#inbox-badge.hidden { display: none; }
+
+#file-tree { flex: 1; overflow-y: auto; padding: 0.3rem 0; font-size: 0.85rem; }
+
+.tree-item { display: flex; align-items: center; padding: 0.25rem 0.5rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background 0.1s; }
+.tree-item:hover { background: var(--bg-hover); }
+.tree-item .tree-icon { width: 1rem; margin-right: 0.3rem; text-align: center; font-size: 0.7rem; flex-shrink: 0; color: var(--text-muted); }
+.tree-item .tree-name { overflow: hidden; text-overflow: ellipsis; }
+.tree-dir > .tree-item .tree-name { color: var(--text); }
+.tree-file > .tree-item .tree-name { color: var(--text-dim); }
+.tree-dir.collapsed > .tree-children { display: none; }
+
+/* File tabs */
+#file-tabs { display: flex; overflow-x: auto; background: var(--bg); border-bottom: 1px solid var(--border); min-height: 0; }
+#file-tabs:empty { display: none; }
+.file-tab { display: flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.8rem; font-size: 0.78rem; color: var(--text-dim); cursor: pointer; border-right: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; transition: color 0.1s; }
+.file-tab:hover { color: var(--text); }
+.file-tab.active { color: var(--text); background: var(--bg-panel); border-bottom: 1px solid var(--accent); margin-bottom: -1px; }
+.file-tab .tab-close { font-size: 0.88rem; width: 1rem; height: 1rem; display: flex; align-items: center; justify-content: center; border-radius: 0.2rem; opacity: 0; }
+.file-tab:hover .tab-close, .file-tab.active .tab-close { opacity: 1; }
+.file-tab .tab-close:hover { background: var(--bg-active); }
+
+/* File viewer */
+#file-viewer { flex: 1; overflow-y: auto; padding: 1rem; font-size: 0.85rem; line-height: 1.7; background: var(--bg); color: var(--text); }
+#file-viewer.hidden { display: none; }
+#file-viewer h1, #file-viewer h2, #file-viewer h3 { margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-light); }
+#file-viewer p { margin-bottom: 0.5rem; }
+#file-viewer code { background: var(--bg-raised); padding: 2px 6px; border-radius: 3px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.88em; }
+#file-viewer pre { background: var(--bg-surface); border: 1px solid var(--border-strong); padding: 0.8rem; border-radius: 6px; overflow-x: auto; }
+#file-viewer pre code { background: none; padding: 0; }
+#file-viewer ul, #file-viewer ol { padding-left: 1.5rem; margin-bottom: 0.5rem; }
+#file-viewer blockquote { border-left: 2px solid var(--user-border); padding-left: 0.8rem; color: var(--text-dim); }
+#file-viewer strong { color: var(--text-light); }

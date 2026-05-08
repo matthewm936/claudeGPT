@@ -1,11 +1,11 @@
 # Personal data — never tracked
-user
-user/
 profiles/
+.active-profile
 
 # Claude Code (settings, memory, etc.)
 .claude/
 !.claude/CLAUDE.md
+!.claude/settings.json
 
 # Search artifacts
 .venv/

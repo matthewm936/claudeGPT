@@ -1,0 +1,34 @@
+#!/bin/bash
+# Server management for ClaudeGPT web UI
+PORT=3141
+DIR="$(cd "$(dirname "$0")" && pwd)"
+
+case "${1:-start}" in
+  start)
+    cd "$DIR" && node server.js >> "$DIR/server.log" 2>&1 &
+    echo "Server started on http://localhost:$PORT"
+    ;;
+  stop)
+    lsof -ti:$PORT 2>/dev/null | xargs kill -9 2>/dev/null
+    echo "Server stopped"
+    ;;
+  restart)
+    lsof -ti:$PORT 2>/dev/null | xargs kill -9 2>/dev/null
+    sleep 1
+    cd "$DIR" && node server.js >> "$DIR/server.log" 2>&1 &
+    echo "Server restarted on http://localhost:$PORT"
+    ;;
+  log)
+    lsof -ti:$PORT 2>/dev/null | head -1 | xargs -I{} tail -f /proc/{}/fd/1 2>/dev/null || echo "Use 'srv restart' and watch stdout directly"
+    ;;
+  status)
+    if lsof -ti:$PORT >/dev/null 2>&1; then
+      echo "Running on port $PORT (PID: $(lsof -ti:$PORT | head -1))"
+    else
+      echo "Not running"
+    fi
+    ;;
+  *)
+    echo "Usage: srv [start|stop|restart|status]"
+    ;;
+esac

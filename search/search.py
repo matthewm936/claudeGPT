@@ -22,8 +22,23 @@ from pathlib import Path
 import numpy as np
 
 REPO_ROOT = Path(__file__).parent.parent
-KB_ROOT = REPO_ROOT / "user"
 INDEX_PATH = Path(__file__).parent / ".search-index.json"
+
+
+def get_kb_root():
+    """Resolve KB root from .active-profile config."""
+    config = REPO_ROOT / ".active-profile"
+    if config.exists():
+        name = config.read_text().strip()
+        if name:
+            p = REPO_ROOT / "profiles" / name
+            if p.exists():
+                return p
+    # Fallback for backwards compat
+    return REPO_ROOT / "user"
+
+
+KB_ROOT = get_kb_root()
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 
@@ -35,7 +50,7 @@ def get_model():
 def collect_documents():
     """Collect all markdown files from the KB, chunked by file with metadata."""
     if not KB_ROOT.exists():
-        print("No user/ directory found. Start a conversation first — Claude will create it.")
+        print(f"No KB directory found at {KB_ROOT}. Start a conversation first.")
         return []
     docs = []
     for md_file in sorted(KB_ROOT.rglob("*.md")):
@@ -138,7 +153,7 @@ def search(query: str, top_k: int = 5):
         doc = documents[idx]
         score = similarities[idx]
         print(f"  {rank}. [{score:.3f}] {doc['title']}")
-        print(f"     user/{doc['path']}")
+        print(f"     {doc['path']}")
         print(f"     {doc['preview'][:120]}...")
         print()
 

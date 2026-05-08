@@ -11,7 +11,8 @@ search/                  → Semantic search tooling
   kb-search              → Bash wrapper (self-bootstrapping)
   search.py              → Embedding search implementation
   requirements.txt       → Python dependencies
-user/                    → Knowledge base (gitignored — created dynamically per user)
+profiles/                → Per-user KB directories (gitignored)
+.active-profile          → Active profile name (gitignored)
 .claude/CLAUDE.md        → This file (dev guide)
 .claude/settings.json    → Pre-configured permissions for Claude Code
 .venv/                   → Python venv for search (gitignored, auto-created)
@@ -20,9 +21,9 @@ user/                    → Knowledge base (gitignored — created dynamically 
 
 ## How It Works
 
-User clones the repo, opens it in VS Code with Claude Code, and starts talking. Claude reads `CLAUDE.md`, recognizes what kind of input the user provides, and builds the `user/` knowledge base dynamically. No setup scripts, no templates, no configuration.
+User clones the repo, opens it in VS Code with Claude Code, and starts talking. Claude reads `CLAUDE.md`, recognizes what kind of input the user provides, and builds the knowledge base dynamically. All KB paths in `CLAUDE.md` are relative — the system sets the working directory to the active profile (`profiles/<name>/`).
 
-The `user/` directory is gitignored — it's personal data that never leaves the user's machine.
+Profile data is gitignored — personal data never leaves the user's machine. `.active-profile` at repo root declares which profile is active. The web UI handles profile switching.
 
 ## Semantic Search
 
@@ -52,6 +53,58 @@ These rules govern how `CLAUDE.md` is modified. Read before any edit.
 
 6. **Format shapes behavior.** Numbered rules invite compliance — the model tries to satisfy every item and produces report-like responses. Narrative descriptions invite embodiment — the model aims for a gestalt. Choose the format that produces the behavior you want. Not everything in the prompt should be a numbered list.
 
+## Web UI Architecture (`web/`)
+
+The web UI uses a modular architecture. Both backend and frontend are split into single-purpose files.
+
+```
+web/
+  server.js              → Init + WS routing (~160 lines)
+  lib/
+    profiles.js          → Profile CRUD + .active-profile config
+    conversations.js     → Conversation storage
+    file-tree.js         → File tree + watcher + broadcast
+    tool-humanize.js     → Tool name/path humanization
+    claude-bridge.js     → Claude CLI spawn + stream parsing
+    import-orchestrator.js → Import pipeline coordination
+    parse-export.js      → ChatGPT export parser
+    import-worker-pool.js → Parallel ingestion workers
+    summarize-worker.js  → Haiku summarization
+    import-prompts.js    → Prompt templates
+  public/
+    index.html           → Shell (loads ES modules + CSS sheets)
+    app.js               → Init + event binding (~45 lines)
+    js/
+      state.js           → Shared state + DOM refs
+      ws.js              → WebSocket connect/send
+      router.js          → Message dispatch
+      chat.js            → Send/stream/render messages
+      conversations.js   → Conversation list UI
+      explorer.js        → File tree, tabs, drag-drop
+      profiles.js        → Profile dropdown
+      onboarding.js      → Import wizard + triage
+      utils.js           → escapeHtml, formatTime, linkify
+    css/
+      base.css           → Variables, reset, grid, shared markdown
+      sidebar.css        → Sidebar + profile dropdown
+      chat.css           → Messages, streaming, tool log, input
+      explorer.css       → File tree, tabs, viewer
+      onboarding.css     → Onboarding + triage + live construction
+```
+
+### Server Management
+
+```bash
+web/srv start     # start server (port 3141)
+web/srv stop      # kill server
+web/srv restart   # stop + start
+web/srv status    # check if running
+```
+
+### File Size Rule
+
+**No source file should exceed 200 lines.** When adding functionality, create a new module. When a file approaches 200 lines, extract a concern before continuing. The `lib/` pattern (single-purpose, <200 lines each) is the standard.
+
 ## Voice Recordings
 
-When a user drops audio files, Claude transcribes with Whisper, stores originals and transcripts in `user/data/voice/`, then processes content into the KB. See the Voice Recording Workflow section in `CLAUDE.md`.
+When a user drops audio files, Claude transcribes with Whisper, stores originals and transcripts in `data/voice/`, then processes content into the KB. See the Voice Recording Workflow section in `CLAUDE.md`.

@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClaudeGPT</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/explorer.css">
+  <link rel="stylesheet" href="css/onboarding.css">
+  <link rel="stylesheet" href="css/artifacts.css">
 </head>
 <body>
   <div id="app">
@@ -15,6 +20,13 @@
         <button id="new-chat-btn" title="New conversation">+ new</button>
       </div>
       <div id="conversation-list"></div>
+      <div id="artifacts-section">
+        <div id="artifacts-header">
+          <span>Notebooks</span>
+          <button id="new-artifact-btn" title="Digitize a notebook">+</button>
+        </div>
+        <div id="artifacts-list"></div>
+      </div>
     </aside>
 
     <!-- Center: Chat -->
@@ -32,7 +44,6 @@
           <button id="send-btn">send</button>
         </div>
       </div>
-      <!-- Drop zone overlay -->
       <div id="drop-overlay" class="hidden">
         <div id="drop-content">Drop files to add to inbox</div>
       </div>
@@ -57,6 +68,6 @@
   </div>
 
   <script src="lib/marked.min.js"></script>
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
