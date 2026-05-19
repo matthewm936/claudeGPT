@@ -30,18 +30,6 @@ export function build(dir, basePath = '') {
     }));
 }
 
-export function getInboxItems(userDir) {
-  const raw = path.join(userDir, 'data', 'inbox', 'raw');
-  const processed = path.join(userDir, 'data', 'inbox', 'processed');
-  const rawItems = fs.existsSync(raw)
-    ? fs.readdirSync(raw).filter(f => !f.startsWith('.')).map(f => ({ name: f, status: 'pending' }))
-    : [];
-  const processedItems = fs.existsSync(processed)
-    ? fs.readdirSync(processed).filter(f => !f.startsWith('.')).map(f => ({ name: f, status: 'processed' }))
-    : [];
-  return [...rawItems, ...processedItems];
-}
-
 function broadcast(msg) {
   const data = JSON.stringify(msg);
   for (const ws of clients) {
@@ -53,18 +41,13 @@ export function broadcastTree() {
   broadcast({ type: 'file_tree_update', tree: build(getUserDir()) });
 }
 
-export function broadcastInbox() {
-  const dir = getUserDir();
-  if (dir) broadcast({ type: 'inbox_update', items: getInboxItems(dir) });
-}
-
 export function setupWatcher() {
   if (fileWatcher) { try { fileWatcher.close(); } catch {} }
   const dir = getUserDir();
   if (dir && fs.existsSync(dir)) {
     fileWatcher = fs.watch(dir, { recursive: true }, () => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => { broadcastTree(); broadcastInbox(); }, 500);
+      debounceTimer = setTimeout(() => broadcastTree(), 500);
     });
   }
 }

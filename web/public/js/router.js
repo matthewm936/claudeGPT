@@ -3,11 +3,12 @@ import { send } from './ws.js';
 import { escapeHtml } from './utils.js';
 import { renderConversationList, loadConversationUI } from './conversations.js';
 import { handleStreamChunk, handleStreamReset, addToolAction, finishStreaming, appendError, startRejoinStream } from './chat.js';
-import { renderFileTree, openFileTab, updateInbox } from './explorer.js';
-import { showProfilePicker, handleProfileSelected, handleProfileDeleted } from './profiles.js';
+import { renderFileTree, openFileTab } from './explorer.js';
+import { showProfilePicker, handleProfileSelected, handleProfileDeleted, handleProfileRenamed } from './profiles.js';
 import { showOnboarding, hideOnboarding, resumeFromCheckpoint, updateParsed, updateProgress, addTriageReading, addTriageItem, onTriageComplete, onTriageReady, showConversationText, addLiveFileCreated, addToolActivity, showComplete, showError } from './onboarding.js';
-import { onUploadStarted, handleProgress as artifactProgress, handlePageTranscribed, handleAnchorDate, handleFileCreated as artifactFileCreated, handleToolActivity as artifactToolActivity, handleComplete as artifactComplete, handleError as artifactError } from './artifacts.js';
-import { renderArtifactList, showDigitalJournal } from './artifact-browser.js';
+import { onCollectionCreated, onBatchCreated, handleProgress as collectionProgress, handleFileProcessed as collectionFileProcessed, handleSynthesisUpdate, handleComplete as collectionComplete, handleToolActivity as collectionToolActivity, handleError as collectionError } from './collections.js';
+import { renderCollectionList, renderImportItem } from './collection-browser.js';
+import { openCollectionViewer, loadBatchIntoViewer, isViewerOpen } from './collection-viewer.js';
 
 export function handleMessage(msg) {
   switch (msg.type) {
@@ -30,7 +31,6 @@ export function handleMessage(msg) {
       break;
     }
 
-    case 'inbox_update': updateInbox(msg.items); break;
     case 'conversation_deleted':
       if (msg.conversationId === state.currentConversationId) { state.currentConversationId = null; dom.messages.innerHTML = ''; }
       send({ type: 'list_conversations' });
@@ -40,14 +40,19 @@ export function handleMessage(msg) {
     case 'profiles': showProfilePicker(msg.profiles, msg.active); break;
     case 'profile_selected': handleProfileSelected(msg); break;
     case 'profile_deleted': handleProfileDeleted(msg); break;
+    case 'profile_renamed': handleProfileRenamed(msg); break;
 
     // Onboarding
     case 'onboarding_status':
       if (msg.required) {
-        showOnboarding();
-        if (msg.hasCheckpoint) send({ type: 'resume_import' });
+        state.chatgptImported = false;
+        renderImportItem();
+        // If there's an in-progress import, resume it
+        if (msg.hasCheckpoint) { showOnboarding(); send({ type: 'resume_import' }); }
+        // Otherwise show main UI with welcome guide + import item
+        else { send({ type: 'list_conversations' }); send({ type: 'file_tree' }); send({ type: 'list_collections' }); }
       }
-      else { hideOnboarding(); send({ type: 'list_conversations' }); send({ type: 'file_tree' }); }
+      else { state.chatgptImported = !!msg.chatgptImported; renderImportItem(); hideOnboarding(); send({ type: 'list_conversations' }); send({ type: 'file_tree' }); send({ type: 'list_collections' }); }
       break;
     case 'import_checkpoint': resumeFromCheckpoint(msg); break;
     case 'import_parsed': updateParsed(msg); break;
@@ -61,26 +66,30 @@ export function handleMessage(msg) {
     case 'import_complete': showComplete(msg); break;
     case 'import_error': showError(msg.message); break;
     case 'import_aborted': showError('Import cancelled.'); break;
-    case 'onboarding_complete': hideOnboarding(); send({ type: 'list_conversations' }); send({ type: 'file_tree' }); break;
+    case 'onboarding_complete': state.chatgptImported = true; renderImportItem(); hideOnboarding(); send({ type: 'list_conversations' }); send({ type: 'file_tree' }); send({ type: 'list_collections' }); break;
 
     case 'import_tool_activity': addToolActivity(msg); break;
     // No-ops
     case 'ingest_batch_complete': break;
 
-    // Artifacts
-    case 'artifact_upload_started': onUploadStarted(msg); break;
-    case 'artifact_uploaded': break; // handled internally — pipeline starts automatically
-    case 'artifact_page_received': break; // upload progress tracked client-side
-    case 'artifact_progress': artifactProgress(msg); break;
-    case 'artifact_page_transcribed': handlePageTranscribed(msg); break;
-    case 'artifact_anchor_date': handleAnchorDate(msg); break;
-    case 'artifact_phase_complete': artifactProgress(msg); break;
-    case 'artifact_file_created': artifactFileCreated(msg); break;
-    case 'artifact_tool_activity': artifactToolActivity(msg); break;
-    case 'artifact_complete': artifactComplete(msg); send({ type: 'list_artifacts' }); send({ type: 'file_tree' }); break;
-    case 'artifact_error': artifactError(msg); break;
-    case 'artifact_aborted': artifactError({ message: 'Processing cancelled.' }); break;
-    case 'artifacts_list': renderArtifactList(msg.artifacts); break;
-    case 'artifact_content': showDigitalJournal(msg); break;
+    // Collections
+    case 'collection_created': onCollectionCreated(msg); break;
+    case 'batch_created': onBatchCreated(msg); break;
+    case 'batch_upload_started': break;
+    case 'batch_file_received': break;
+    case 'batch_processing': collectionProgress(msg); break;
+    case 'collection_progress': collectionProgress(msg); break;
+    case 'collection_file_processed': collectionFileProcessed(msg); break;
+    case 'collection_phase_complete': collectionProgress(msg); break;
+    case 'collection_file_created': collectionFileProcessed(msg); break;
+    case 'collection_synthesis_update': handleSynthesisUpdate(msg); break;
+    case 'collection_tool_activity': collectionToolActivity(msg); break;
+    case 'collection_complete': collectionComplete(msg); send({ type: 'list_collections' }); send({ type: 'file_tree' }); break;
+    case 'collection_error': collectionError(msg); break;
+    case 'collection_aborted': collectionError({ message: 'Processing cancelled.' }); break;
+    case 'collections_list': renderCollectionList(msg.collections); break;
+    case 'collection_detail': openCollectionViewer(msg); break;
+    case 'batch_content': if (isViewerOpen()) loadBatchIntoViewer(msg); break;
+    case 'collection_context_updated': break;
   }
 }

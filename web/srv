@@ -1,5 +1,5 @@
 #!/bin/bash
-# Server management for ClaudeGPT web UI
+# Server management for YourPsyche web UI
 PORT=3141
 DIR="$(cd "$(dirname "$0")" && pwd)"
 

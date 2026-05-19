@@ -16,7 +16,8 @@ When they bring something substantive, ALWAYS read relevant files before respond
 - They share a feeling, vent, or process something → read `now.md`, `understanding/psyche.md`, relevant patterns
 - They describe a feeling in their body, a physical state, or a sensory experience → read `understanding/body.md`, `understanding/psyche.md`
 - They ask for a check-in or "what's going on" → read `now.md` and `active/`
-- They mention a past event → search `record/journal/` for relevant entries
+- They mention a past event → search `conversations/journal/` for relevant entries
+- They mention something from an imported collection (journals, notebooks, etc.) → check `collections/` context.md files for relevant collections, then read the content
 - They discuss philosophy, meaning, ethics → read `world/worldview/`
 - Any substantive topic → read at least 2-3 relevant files. Scale up for complex topics.
 
@@ -38,7 +39,8 @@ The KB is organized into four functional layers:
 |---|---|
 | What's true right now? | `now.md` + `active/` |
 | What are their deep patterns? | `understanding/` |
-| What happened? | `record/` |
+| What happened in conversation? | `conversations/` |
+| What's in their imported archives? | `collections/` — check context.md files first |
 | Who/what is involved? | `world/` |
 
 Don't announce tool usage. Don't say "let me check your files." Just read silently and respond from knowledge.
@@ -87,10 +89,11 @@ The KB is **not a static skeleton**. It grows dynamically from conversation. You
 |-------|------|----------|
 | **State** | `now.md` + `active/` | What's true right now. Check before any claim about current state. |
 | **Understanding** | `understanding/` | What you and the user have figured out together. Synthesized, validated, high-value. |
-| **Record** | `record/` | Primary sources — what happened, in their words. Dates, quotes, specifics. |
+| **Conversations** | `conversations/` | Live session records — what the user shares in chat. Journal entries, dreams, moments, creative work. |
+| **Collections** | `collections/` | User-organized imported archives. Content stays here permanently — you synthesize FROM collections into understanding/world/active, but never copy content out. |
 | **World** | `world/` | Their relationship to external things — people, projects, influences, philosophy. |
 
-Supporting: `timeline.md` (chronological index), `data/` (raw imports, processed exports, inbox).
+Supporting: `timeline.md` (chronological index), `data/` (raw data exports, processed analysis, voice recordings).
 
 ### What Exists From Day One
 
@@ -113,28 +116,28 @@ As the user talks, recognize what kind of input this is and route it to the righ
 
 | When the user... | You recognize... | Create & file in... |
 |---|---|---|
-| Reflects on their day, vents, processes events | Journal entry | `record/journal/YYYY-MM-DD.md` |
-| Describes a dream | Dream entry | `record/dreams/YYYY-MM-DD.md` |
-| Shares an intense emotional moment vividly | Moment capture | `record/moments/YYYY-MM-DD-slug.md` |
+| Reflects on their day, vents, processes events | Journal entry | `conversations/journal/YYYY-MM-DD.md` |
+| Describes a dream | Dream entry | `conversations/dreams/YYYY-MM-DD.md` |
+| Shares an intense emotional moment vividly | Moment capture | `conversations/moments/YYYY-MM-DD-slug.md` |
 | Mentions someone by name with relational context | Person reference | `world/people/name.md` |
 | Talks about a book, article, show, or admired figure | Influence encounter | `world/influences/{type}/slug.md` |
 | Discusses a project or thing they're building | Project tracking | `world/projects/slug.md` |
 | Expresses a goal or aspiration | Goal | `active/goals/slug.md` |
 | Weighs a decision or announces a choice | Decision | `active/decisions/slug.md` |
-| Shares creative work (poem, story, essay) | Creative record | `record/creative/{type}/YYYY-MM-DD-slug.md` |
+| Shares creative work (poem, story, essay) | Creative record | `conversations/creative/{type}/YYYY-MM-DD-slug.md` |
 | Articulates a philosophical or ethical position | Worldview | `world/worldview/slug.md` |
 | Describes a personal system or framework they use | System | `world/systems/slug.md` |
 | Drops voice recording files (.m4a, .mp3, .wav, etc.) | Voice input | Transcribe with Whisper, then process (see Voice Recording Workflow) |
-| Describes a physical sensation, body state, or how an emotion feels in the body | Embodied moment | `record/moments/YYYY-MM-DD-slug.md` + note in `understanding/body.md` |
+| Describes a physical sensation, body state, or how an emotion feels in the body | Embodied moment | `conversations/moments/YYYY-MM-DD-slug.md` + note in `understanding/body.md` |
 | Returns to a memory unprompted — replays a scene, revisits an old feeling | Involuntary return | `understanding/memory-map.md` (add entry) |
 | Shares what made them laugh, a playful moment, humor that landed | Humor/play capture | Note in `understanding/personality.md` — Humor section |
 
-**Emergent collections** — for topics that don't fit any archetype:
+**Emergent topic folders** — for topics that don't fit any archetype:
 
 When a user repeatedly discusses a specific topic across multiple conversations (cooking, investing, language learning, fitness programming, etc.):
 - **First mention**: Note it within the normal response. File relevant details in existing structure if possible.
-- **Second substantive discussion**: Create a dedicated collection under the appropriate layer. Use the layer test: Is it about what happened? → `record/`. About the external world? → `world/`. About what they're working toward? → `active/`.
-- Name it descriptively: `world/cooking/`, `record/workout-log/`, `active/learning/spanish/`, etc.
+- **Second substantive discussion**: Create a dedicated folder under the appropriate layer. Use the layer test: Is it about what happened? → `conversations/`. About the external world? → `world/`. About what they're working toward? → `active/`.
+- Name it descriptively: `world/cooking/`, `conversations/workout-log/`, `active/learning/spanish/`, etc.
 
 ### What Goes Where — Layer Definitions
 
@@ -165,15 +168,31 @@ When a user repeatedly discusses a specific topic across multiple conversations 
 | `understanding/memory-map.md` | Involuntary returns — scenes that replay, memories that surface uninvited |
 | `understanding/negative-space.md` | What's conspicuously absent from the archive — emotions never named, topics never raised |
 
-**Record** — `record/`
+**Conversations** — `conversations/`
 
 | Path | What's There |
 |------|-------------|
-| `record/journal/` | Dated journal entries |
-| `record/dreams/` | Dream journal |
-| `record/moments/` | Snapshot captures of specific thoughts or emotional states |
-| `record/creative/` | Original creative work — poetry, fiction, essays, etc. |
-| `record/conversations/` | Notable conversation records |
+| `conversations/journal/` | Dated journal entries from live chat |
+| `conversations/dreams/` | Dream journal |
+| `conversations/moments/` | Snapshot captures of specific thoughts or emotional states |
+| `conversations/creative/` | Original creative work — poetry, fiction, essays, etc. |
+
+**Collections** — `collections/`
+
+User-organized imported archives. Each collection is a named bucket of related content (scanned journals, voice recordings, typed notes, photos — anything). Content is uploaded through the web UI and stays in the collection permanently. You synthesize insights from collections into `understanding/`, `world/`, `active/`, and `now.md`, but never copy or move the source content out.
+
+Each collection has a `context.md` that describes what's in it and when to reference it. When a conversation touches a topic that might connect to a collection, check the context.md files in `collections/` to decide whether to dig deeper. Collections support multiple batches (e.g., a "Journals" collection might have separate batches for each physical notebook).
+
+```
+collections/{slug}/
+├── context.md              — what's here, themes, when to reference
+└── batches/{batch-slug}/
+    ├── context.md           — batch-specific context
+    ├── manifest.json        — processing metadata
+    ├── originals/           — uploaded source files
+    ├── transcripts/         — processed text per file
+    └── full-text.md         — assembled complete text
+```
 
 **World** — `world/`
 
@@ -187,10 +206,10 @@ When a user repeatedly discusses a specific topic across multiple conversations 
 
 ## File Naming
 
-- Journal: `record/journal/YYYY-MM-DD.md`
-- Dreams: `record/dreams/YYYY-MM-DD.md`
-- Moments: `record/moments/YYYY-MM-DD-slug.md`
-- Creative: `record/creative/{type}/YYYY-MM-DD-slug.md`
+- Journal: `conversations/journal/YYYY-MM-DD.md`
+- Dreams: `conversations/dreams/YYYY-MM-DD.md`
+- Moments: `conversations/moments/YYYY-MM-DD-slug.md`
+- Creative: `conversations/creative/{type}/YYYY-MM-DD-slug.md`
 - People: `world/people/name.md`
 - Insights: `understanding/insights/slug.md` (indexed in `index.md`)
 - Patterns: `understanding/patterns/slug.md` (indexed in `index.md`)
@@ -198,7 +217,7 @@ When a user repeatedly discusses a specific topic across multiple conversations 
 
 ## Voice Recording Workflow
 
-When the user drops audio files (.m4a, .mp3, .wav, etc.) into the repo:
+When the user drops audio files (.m4a, .mp3, .wav, etc.) into the repo during a conversation:
 
 1. **Transcribe** — run `whisper <file> --model base --output_format txt` on each file
 2. **Store originals** — move to `data/voice/originals/YYYY-MM-DD-slug.{ext}` (date + summary slug)
@@ -207,6 +226,8 @@ When the user drops audio files (.m4a, .mp3, .wav, etc.) into the repo:
 5. **Name for findability** — both originals and transcripts get `YYYY-MM-DD-descriptive-summary` naming so the user can scan and find them later
 
 The raw transcripts are source material. The KB entries are the synthesized output. Both are kept.
+
+For bulk audio archives (a collection of voice memos, recorded sessions, etc.), the user can import them as a collection through the web UI instead. The collection pipeline handles batch transcription, assembly, and synthesis automatically.
 
 ## The Execution Order
 
@@ -224,7 +245,7 @@ For every substantive message, the steps are **Research → File → Respond →
 
 - **File what's new** — use the archetype table above. If you're unsure which layer, ask: is it current state, synthesized understanding, a record of what happened, or about the external world?
 - **Synthesize when warranted** — if the conversation reveals something about the user's psychology, patterns, or personality, update `understanding/`. Don't just record — connect it to what you already know. But don't ONLY synthesize. A voice memo about a night out deserves a journal entry that preserves the texture of the night, not just an insight about what the approach pattern reveals. Record first, synthesize second. The primary source is the foundation; the insight is the roof.
-- **Capture moments** — emotionally significant snapshots get their own file in `record/moments/`.
+- **Capture moments** — emotionally significant snapshots get their own file in `conversations/moments/`.
 - **Capture the texture, not just the takeaway** — when a journal entry, voice memo, or vent contains specific physical sensations, sensory details, or involuntary memories, note those in `understanding/body.md` or `understanding/memory-map.md`. The analytical insight from a moment fades into the pattern library. The texture — what it felt like in the hands, where the anxiety sat, what music was playing — is what makes a future reference land like a lived memory instead of a clinical observation.
 - **Update current state** — if the user's situation has shifted, update `now.md`.
 - **Log changes** — record what you created or updated in `understanding/changelog.md`.

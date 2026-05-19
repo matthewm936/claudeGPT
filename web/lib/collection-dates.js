@@ -1,16 +1,14 @@
 /**
- * Date interpolation (pure Node.js) and assembly/filing
- * coordination (Claude CLI workers).
+ * Date interpolation for image-based collections.
+ * Pure Node.js — no Claude CLI needed.
+ * Interpolates undated pages between anchor dates.
  */
 
 import fs from 'fs';
 import path from 'path';
-import { spawnClaudeWorker } from './import-worker-pool.js';
-import { buildAssemblyPrompt, buildKbFilingPrompt } from './artifact-prompts.js';
 
 /**
  * Read front matter from a transcript file.
- * Returns { page, date, date_source, has_date } or null.
  */
 function readTranscriptMeta(filePath) {
   try {
@@ -58,11 +56,10 @@ function updateTranscriptMeta(filePath, updates) {
  * Interpolate dates for undated pages using anchor dates and timeline bounds.
  * Returns the anchorDates array found.
  */
-export function interpolateDates(manifest, artifactDir) {
-  const transcriptsDir = path.join(artifactDir, 'transcripts');
+export function interpolateDates(manifest, batchDir) {
+  const transcriptsDir = path.join(batchDir, 'transcripts');
   if (!fs.existsSync(transcriptsDir)) return [];
 
-  // Read all transcript metadata
   const files = fs.readdirSync(transcriptsDir).filter(f => f.endsWith('.md')).sort();
   const pages = [];
 
@@ -80,35 +77,31 @@ export function interpolateDates(manifest, artifactDir) {
     source: 'written-on-page',
   }));
 
-  // Build date map: page -> date (ms)
   const dateMap = new Map();
   for (const a of anchors) {
     const d = new Date(a.date);
     if (!isNaN(d)) dateMap.set(a.page, d.getTime());
   }
 
-  // Try to extract usable dates from freeform timeline string for bounds
+  // Extract year bounds from timeline string
   const timeline = typeof manifest.timeline === 'string' ? manifest.timeline : '';
   const yearMatches = timeline.match(/\b(19|20)\d{2}\b/g);
   if (yearMatches && yearMatches.length > 0 && !dateMap.has(1)) {
     const d = new Date(`${yearMatches[0]}-01-01`);
-    if (!isNaN(d)) dateMap.set(0, d.getTime()); // virtual page 0
+    if (!isNaN(d)) dateMap.set(0, d.getTime());
   }
   if (yearMatches && yearMatches.length > 1 && !dateMap.has(pages.length)) {
     const d = new Date(`${yearMatches[yearMatches.length - 1]}-12-28`);
-    if (!isNaN(d)) dateMap.set(pages.length + 1, d.getTime()); // virtual last page
+    if (!isNaN(d)) dateMap.set(pages.length + 1, d.getTime());
   }
 
-  // Sort anchor pages
   const anchorPages = [...dateMap.keys()].sort((a, b) => a - b);
-
-  if (anchorPages.length < 2) return anchors; // can't interpolate with fewer than 2
+  if (anchorPages.length < 2) return anchors;
 
   // Interpolate undated pages
   for (const p of pages) {
     if (dateMap.has(p.page)) continue;
 
-    // Find surrounding anchors
     let before = null, after = null;
     for (const ap of anchorPages) {
       if (ap <= p.page) before = ap;
@@ -131,38 +124,4 @@ export function interpolateDates(manifest, artifactDir) {
   }
 
   return anchors;
-}
-
-/**
- * Spawn a Claude worker to assemble full-text.md from transcripts.
- */
-export async function assembleJournal(manifest, profileDir, callbacks, signal) {
-  const prompt = buildAssemblyPrompt(manifest);
-  const cwd = path.join(profileDir, 'data', 'artifacts', 'notebooks', manifest.slug);
-
-  return spawnClaudeWorker(prompt, cwd, {
-    allowedTools: ['Write', 'Read', 'Glob', 'Grep'],
-    maxTurns: 20,
-    permissionMode: 'bypassPermissions',
-    onFileCreated: callbacks?.onFileCreated,
-    onToolActivity: callbacks?.onToolActivity,
-    signal,
-  });
-}
-
-/**
- * Spawn a Claude worker to file journal content into the KB.
- * Runs in the profile root so KB paths (record/, world/) resolve correctly.
- */
-export async function fileIntoKb(manifest, profileDir, callbacks, signal) {
-  const prompt = buildKbFilingPrompt(manifest);
-
-  return spawnClaudeWorker(prompt, profileDir, {
-    allowedTools: ['Write', 'Edit', 'Read', 'Glob', 'Grep', 'Bash'],
-    maxTurns: 50,
-    permissionMode: 'bypassPermissions',
-    onFileCreated: callbacks?.onFileCreated,
-    onToolActivity: callbacks?.onToolActivity,
-    signal,
-  });
 }

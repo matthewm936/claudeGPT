@@ -43,7 +43,7 @@ export function buildIngestionBatches(conversations, maxBatchSize = MAX_BATCH_SI
  * Spawn a claude CLI process with stream-json output.
  * Returns a promise that resolves with { filesCreated, cost, success }.
  */
-export function spawnClaudeWorker(prompt, cwd, { allowedTools, maxTurns, permissionMode, onFileCreated, onToolActivity, signal }) {
+export function spawnClaudeWorker(prompt, cwd, { allowedTools, maxTurns, permissionMode, model, onFileCreated, onToolActivity, signal }) {
   return new Promise((resolve, reject) => {
     const args = [
       '-p',
@@ -52,6 +52,8 @@ export function spawnClaudeWorker(prompt, cwd, { allowedTools, maxTurns, permiss
       '--permission-mode', permissionMode || 'bypassPermissions',
       '--max-turns', String(maxTurns || 50),
     ];
+
+    if (model) args.push('--model', model);
 
     if (allowedTools?.length) {
       args.push('--allowedTools', ...allowedTools);

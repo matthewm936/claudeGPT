@@ -10,6 +10,7 @@ export const state = {
   sidebarCollapsed: false,
   explorerCollapsed: false,
   onboardingRequired: false,
+  chatgptImported: true, // assume true until server says otherwise
   liveTreePaths: new Set(),
   triageItems: [],
   triageDecisions: {},
@@ -17,13 +18,15 @@ export const state = {
   triageSummarized: 0,
   triageTotal: 0,
   toolActions: [],
+  selectedModel: 'sonnet',
   cachedProfiles: [],
   cachedActiveProfile: null,
   profileDropdownOpen: false,
-  // Artifacts
-  artifactSession: null,
-  artifactsList: [],
-  artifactProgress: { phase: null, currentPage: 0, totalPages: 0, anchorDates: [] },
+  // Collections
+  collectionSession: null,
+  collectionsList: [],
+  activeCollection: null,
+  collectionProgress: { phase: null, currentFile: 0, totalFiles: 0 },
 };
 
 // DOM refs
@@ -39,7 +42,4 @@ export const dom = {
   fileTree: $('#file-tree'),
   fileTabs: $('#file-tabs'),
   fileViewer: $('#file-viewer'),
-  inboxBadge: $('#inbox-badge'),
-  inboxCount: $('#inbox-count'),
-  dropOverlay: $('#drop-overlay'),
 };

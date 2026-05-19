@@ -72,12 +72,23 @@ export function select(name, profilesDir) {
   if (!fs.existsSync(dir)) throw new Error('Profile not found');
   activeProfile = name;
   writeConfig(profilesDir, name);
-
-  // Ensure inbox dirs exist
-  const inboxRaw = path.join(dir, 'data', 'inbox', 'raw');
-  const inboxProcessed = path.join(dir, 'data', 'inbox', 'processed');
-  [inboxRaw, inboxProcessed].forEach(d => fs.mkdirSync(d, { recursive: true }));
   return name;
+}
+
+export function rename(oldName, newName, profilesDir) {
+  const safe = newName.toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 40);
+  if (!safe) throw new Error('Invalid profile name');
+  const oldDir = path.join(profilesDir, oldName);
+  const newDir = path.join(profilesDir, safe);
+  if (!fs.existsSync(oldDir)) throw new Error('Profile not found');
+  if (oldName !== safe && fs.existsSync(newDir)) throw new Error('Profile already exists');
+  if (oldName === safe) return safe;
+  fs.renameSync(oldDir, newDir);
+  if (activeProfile === oldName) {
+    activeProfile = safe;
+    writeConfig(profilesDir, safe);
+  }
+  return safe;
 }
 
 export function remove(name, profilesDir) {
@@ -108,8 +119,15 @@ export function isOnboardingComplete(profilesDir) {
   return fs.existsSync(path.join(dir, '.onboarding-complete')) || fs.existsSync(path.join(dir, 'now.md'));
 }
 
+export function isChatgptImported(profilesDir) {
+  const dir = getDir(profilesDir);
+  if (!dir) return false;
+  return fs.existsSync(path.join(dir, '.chatgpt-imported'));
+}
+
 export function markOnboardingComplete(profilesDir) {
   const dir = getDir(profilesDir);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, '.onboarding-complete'), new Date().toISOString());
+  fs.writeFileSync(path.join(dir, '.chatgpt-imported'), new Date().toISOString());
 }

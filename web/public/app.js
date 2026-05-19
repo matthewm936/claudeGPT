@@ -2,9 +2,9 @@ import { state, dom } from './js/state.js';
 import { connect, send } from './js/ws.js';
 import { sendMessage } from './js/chat.js';
 import { newConversation } from './js/conversations.js';
-import { toggleSidebar, toggleExplorer, setupDragDrop } from './js/explorer.js';
+import { toggleSidebar, toggleExplorer } from './js/explorer.js';
 import { setupProfileListeners } from './js/profiles.js';
-import { setupArtifactListeners } from './js/artifact-browser.js';
+import { setupCollectionListeners } from './js/collection-browser.js';
 
 // --- Input Handling ---
 
@@ -35,14 +35,16 @@ dom.messages.addEventListener('click', (e) => {
   if (link) { e.preventDefault(); send({ type: 'read_file', path: link.dataset.path }); }
 });
 
-// Inbox badge
-dom.inboxBadge.addEventListener('click', () => {
-  dom.chatInput.value = 'Hey Claude, process the items in my inbox';
-  dom.chatInput.focus();
+// Model selector
+document.getElementById('model-selector').addEventListener('click', (e) => {
+  const btn = e.target.closest('.model-opt');
+  if (!btn) return;
+  document.querySelectorAll('.model-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.selectedModel = btn.dataset.model;
 });
 
 // --- Init ---
-setupDragDrop();
 setupProfileListeners();
-setupArtifactListeners();
+setupCollectionListeners();
 connect();

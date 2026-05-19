@@ -27,6 +27,9 @@ export function handleProfileSelected(msg) {
   document.getElementById('profile-name').textContent = msg.name;
   hideProfilePicker();
   state.currentConversationId = null;
+  state.collectionsList = [];
+  state.activeCollection = null;
+  state.collectionSession = null;
   dom.messages.innerHTML = '';
   send({ type: 'check_onboarding' });
 }
@@ -36,9 +39,19 @@ export function handleProfileDeleted(msg) {
   state.cachedActiveProfile = msg.active;
   document.getElementById('profile-name').textContent = msg.active || '\u2014';
   state.currentConversationId = null;
+  state.collectionsList = [];
+  state.activeCollection = null;
+  state.collectionSession = null;
   dom.messages.innerHTML = '';
   if (!msg.active) showFirstTimeProfileSetup();
   else send({ type: 'check_onboarding' });
+}
+
+export function handleProfileRenamed(msg) {
+  state.cachedProfiles = msg.profiles || state.cachedProfiles;
+  state.cachedActiveProfile = msg.active;
+  document.getElementById('profile-name').textContent = msg.active || '\u2014';
+  renderProfileDropdown();
 }
 
 function showFirstTimeProfileSetup() {
@@ -46,7 +59,7 @@ function showFirstTimeProfileSetup() {
   const overlay = document.createElement('div');
   overlay.id = 'profile-picker';
   overlay.innerHTML = `<div class="profile-picker-container">
-    <h1>Welcome to ClaudeGPT</h1>
+    <h1>Welcome to YourPsyche</h1>
     <p class="profile-subtitle">Create your profile to get started.</p>
     <div class="profile-create">
       <input type="text" id="new-profile-name" placeholder="Your name..." maxlength="40" autofocus />
@@ -68,9 +81,10 @@ export function renderProfileDropdown() {
   dropdown.innerHTML = `
     ${state.cachedProfiles.map(p => `
       <div class="dropdown-profile ${p.name === state.cachedActiveProfile ? 'active' : ''}" data-name="${escapeHtml(p.name)}">
-        <span>${escapeHtml(p.name)}</span>
+        <span class="dp-name">${escapeHtml(p.name)}</span>
         <span class="dp-actions">
           ${p.name === state.cachedActiveProfile ? '<span class="dp-status">active</span>' : ''}
+          <span class="dp-rename" data-name="${escapeHtml(p.name)}" title="Rename profile">&#9998;</span>
           <span class="dp-delete" data-name="${escapeHtml(p.name)}" title="Delete profile">&times;</span>
         </span>
       </div>
@@ -84,11 +98,23 @@ export function renderProfileDropdown() {
 
   dropdown.querySelectorAll('.dropdown-profile').forEach(el => {
     el.addEventListener('click', (e) => {
-      if (e.target.closest('.dp-delete')) return;
+      if (e.target.closest('.dp-delete') || e.target.closest('.dp-rename')) return;
       e.stopPropagation();
       const name = el.dataset.name;
       if (name !== state.cachedActiveProfile) send({ type: 'select_profile', name });
       toggleProfileDropdown(false);
+    });
+  });
+
+  dropdown.querySelectorAll('.dp-rename').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const oldName = el.dataset.name;
+      const newName = prompt('Rename profile:', oldName);
+      if (newName && newName.trim() && newName.trim() !== oldName) {
+        send({ type: 'rename_profile', oldName, newName: newName.trim() });
+        toggleProfileDropdown(false);
+      }
     });
   });
 

@@ -72,7 +72,7 @@ export function showOnboarding() {
     <div id="onboarding-content">
       <div id="step-1" class="onboarding-step active">
         <h1>Import your ChatGPT history</h1>
-        <p class="onboarding-subtitle">ClaudeGPT builds a knowledge base about you from your conversations. The fastest way to start is importing your ChatGPT export.</p>
+        <p class="onboarding-subtitle">YourPsyche builds a knowledge base about you from your conversations. The fastest way to start is importing your ChatGPT export.</p>
         <div class="instruction-video"><video controls preload="metadata"><source src="/chatgpt-export-tutorial.mp4" type="video/mp4"></video></div>
         <div class="instruction-steps">
           <div class="instruction-step"><span class="instruction-number">1</span><div><strong>Open ChatGPT Settings</strong><p>Go to chatgpt.com, click your profile icon, then Settings</p></div></div>

@@ -22,7 +22,8 @@ function updateGridLayout() {
 
 export function renderFileTree(tree) {
   dom.fileTree.innerHTML = '';
-  tree.forEach(node => dom.fileTree.appendChild(createTreeNode(node, 0)));
+  const filtered = tree.filter(node => node.name !== 'collections');
+  filtered.forEach(node => dom.fileTree.appendChild(createTreeNode(node, 0)));
 }
 
 function createTreeNode(node, depth) {
@@ -110,33 +111,9 @@ function renderTabs() {
 
 function renderFileContent(content, filePath) {
   dom.fileViewer.classList.remove('hidden');
-  const isMarkdown = filePath.endsWith('.md') || filePath.startsWith('artifact:');
+  const isMarkdown = filePath.endsWith('.md');
   dom.fileViewer.innerHTML = isMarkdown
     ? `<div class="markdown-content">${marked.parse(content)}</div>`
     : `<pre><code>${escapeHtml(content)}</code></pre>`;
 }
 
-export function updateInbox(items) {
-  const pending = items.filter(i => i.status === 'pending');
-  if (pending.length > 0) { dom.inboxBadge.classList.remove('hidden'); dom.inboxCount.textContent = pending.length; }
-  else { dom.inboxBadge.classList.add('hidden'); }
-}
-
-export function setupDragDrop() {
-  const chatPanel = document.getElementById('chat-panel');
-  let dragCounter = 0;
-
-  chatPanel.addEventListener('dragenter', (e) => { e.preventDefault(); dragCounter++; dom.dropOverlay.classList.remove('hidden'); });
-  chatPanel.addEventListener('dragleave', (e) => { e.preventDefault(); dragCounter--; if (dragCounter === 0) dom.dropOverlay.classList.add('hidden'); });
-  chatPanel.addEventListener('dragover', (e) => e.preventDefault());
-  chatPanel.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dragCounter = 0;
-    dom.dropOverlay.classList.add('hidden');
-    for (const file of e.dataTransfer.files) {
-      const reader = new FileReader();
-      reader.onload = () => send({ type: 'upload', filename: file.name, data: reader.result.split(',')[1] });
-      reader.readAsDataURL(file);
-    }
-  });
-}

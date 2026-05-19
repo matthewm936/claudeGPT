@@ -10,16 +10,13 @@ import * as conversations from './lib/conversations.js';
 import * as fileTree from './lib/file-tree.js';
 import * as claudeBridge from './lib/claude-bridge.js';
 import * as importOrchestrator from './lib/import-orchestrator.js';
-import * as artifactOrchestrator from './lib/artifact-orchestrator.js';
+import * as collectionOrchestrator from './lib/collection-orchestrator.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = path.resolve(__dirname, '..');
 const PROFILES_DIR = path.join(REPO_DIR, 'profiles');
-const CONV_DIR = path.join(__dirname, 'conversations');
-
 // Initialize modules
 profiles.init(PROFILES_DIR);
-conversations.init(CONV_DIR);
 fileTree.init(() => profiles.getDir(PROFILES_DIR));
 if (profiles.getActive()) fileTree.setupWatcher();
 
@@ -41,23 +38,29 @@ wss.on('connection', (ws) => {
 
     switch (msg.type) {
       case 'chat':
-        claudeBridge.handleChat(ws, msg.conversationId, msg.text, REPO_DIR, profiles.getDir(PROFILES_DIR));
+        claudeBridge.handleChat(ws, msg.conversationId, msg.text, REPO_DIR, profiles.getDir(PROFILES_DIR), msg.model);
         break;
 
       case 'new_conversation': {
-        const conv = conversations.create();
+        const pDir = profiles.getDir(PROFILES_DIR);
+        if (!pDir) { ws.send(JSON.stringify({ type: 'error', message: 'No active profile' })); break; }
+        const conv = conversations.create(pDir);
         ws.send(JSON.stringify({ type: 'conversation', data: conv }));
         break;
       }
 
       case 'list_conversations': {
-        const list = conversations.list().map(c => ({ ...c, active: claudeBridge.isActive(c.id) }));
+        const pDir = profiles.getDir(PROFILES_DIR);
+        if (!pDir) { ws.send(JSON.stringify({ type: 'conversations', list: [] })); break; }
+        const list = conversations.list(pDir).map(c => ({ ...c, active: claudeBridge.isActive(c.id) }));
         ws.send(JSON.stringify({ type: 'conversations', list }));
         break;
       }
 
       case 'load_conversation': {
-        const conv = conversations.load(msg.conversationId);
+        const pDir = profiles.getDir(PROFILES_DIR);
+        if (!pDir) { ws.send(JSON.stringify({ type: 'error', message: 'No active profile' })); break; }
+        const conv = conversations.load(pDir, msg.conversationId);
         if (!conv) { ws.send(JSON.stringify({ type: 'error', message: 'Conversation not found' })); break; }
         const active = claudeBridge.isActive(msg.conversationId);
         ws.send(JSON.stringify({ type: 'conversation', data: conv, active }));
@@ -69,10 +72,13 @@ wss.on('connection', (ws) => {
         break;
       }
 
-      case 'delete_conversation':
-        conversations.remove(msg.conversationId);
+      case 'delete_conversation': {
+        const pDir = profiles.getDir(PROFILES_DIR);
+        if (!pDir) { ws.send(JSON.stringify({ type: 'error', message: 'No active profile' })); break; }
+        conversations.remove(pDir, msg.conversationId);
         ws.send(JSON.stringify({ type: 'conversation_deleted', conversationId: msg.conversationId }));
         break;
+      }
 
       case 'file_tree':
         ws.send(JSON.stringify({ type: 'file_tree', tree: fileTree.build(profiles.getDir(PROFILES_DIR)) }));
@@ -90,16 +96,6 @@ wss.on('connection', (ws) => {
           console.error(`[read_file] failed: ${filePath} — ${err.message}`);
           ws.send(JSON.stringify({ type: 'error', message: `Cannot read ${msg.path}` }));
         }
-        break;
-      }
-
-      case 'upload': {
-        try {
-          const userDir = profiles.getDir(PROFILES_DIR);
-          const dest = path.join(userDir, 'data', 'inbox', 'raw', msg.filename);
-          fs.writeFileSync(dest, Buffer.from(msg.data, 'base64'));
-          fileTree.broadcastInbox();
-        } catch (err) { ws.send(JSON.stringify({ type: 'error', message: `Upload failed: ${err.message}` })); }
         break;
       }
 
@@ -128,6 +124,14 @@ wss.on('connection', (ws) => {
         } catch (err) { ws.send(JSON.stringify({ type: 'error', message: err.message })); }
         break;
 
+      case 'rename_profile':
+        try {
+          const newName = profiles.rename(msg.oldName, msg.newName, PROFILES_DIR);
+          fileTree.setupWatcher();
+          ws.send(JSON.stringify({ type: 'profile_renamed', oldName: msg.oldName, newName, profiles: profiles.list(PROFILES_DIR), active: profiles.getActive() }));
+        } catch (err) { ws.send(JSON.stringify({ type: 'error', message: err.message })); }
+        break;
+
       case 'delete_profile':
         try {
           profiles.remove(msg.name, PROFILES_DIR);
@@ -138,8 +142,9 @@ wss.on('connection', (ws) => {
 
       case 'check_onboarding': {
         const complete = profiles.isOnboardingComplete(PROFILES_DIR);
+        const imported = profiles.isChatgptImported(PROFILES_DIR);
         if (complete) {
-          ws.send(JSON.stringify({ type: 'onboarding_status', required: false }));
+          ws.send(JSON.stringify({ type: 'onboarding_status', required: false, chatgptImported: imported }));
         } else {
           // Check for a resumable checkpoint
           const cp = importOrchestrator.checkForCheckpoint(PROFILES_DIR);
@@ -189,47 +194,83 @@ wss.on('connection', (ws) => {
         importOrchestrator.abort(ws);
         break;
 
-      // --- Artifact Ingestion ---
+      // --- Collections ---
 
-      case 'upload_artifact_start':
-        try { artifactOrchestrator.handleUploadStart(ws, msg.metadata, PROFILES_DIR); }
-        catch (err) { ws.send(JSON.stringify({ type: 'artifact_error', message: err.message })); }
+      case 'create_collection':
+        try { collectionOrchestrator.createCollection(ws, msg.metadata, PROFILES_DIR); }
+        catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
         break;
 
-      case 'upload_artifact_page':
-        try { artifactOrchestrator.handleUploadPage(ws, msg.artifactId, msg.pageNumber, msg.filename, msg.data, PROFILES_DIR); }
-        catch (err) { ws.send(JSON.stringify({ type: 'artifact_error', message: err.message })); }
+      case 'add_batch':
+        try { collectionOrchestrator.addBatch(ws, msg.collectionId, msg.metadata, PROFILES_DIR); }
+        catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
         break;
 
-      case 'upload_artifact_complete':
-        try { await artifactOrchestrator.handleUploadComplete(ws, msg.artifactId, msg.totalPages, PROFILES_DIR); }
-        catch (err) { ws.send(JSON.stringify({ type: 'artifact_error', message: err.message })); }
+      case 'upload_batch_start':
+        try { collectionOrchestrator.handleUploadStart(ws, msg.collectionId, msg.batchSlug, PROFILES_DIR); }
+        catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
         break;
 
-      case 'list_artifacts':
-        ws.send(JSON.stringify({ type: 'artifacts_list', artifacts: artifactOrchestrator.listArtifacts(PROFILES_DIR) }));
+      case 'upload_batch_file':
+        try { collectionOrchestrator.handleUploadFile(ws, msg.collectionId, msg.batchSlug, msg.fileIndex, msg.filename, msg.data, PROFILES_DIR); }
+        catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
         break;
 
-      case 'read_artifact':
+      case 'upload_batch_complete':
+        try { await collectionOrchestrator.handleUploadComplete(ws, msg.collectionId, msg.batchSlug, msg.totalFiles, PROFILES_DIR); }
+        catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
+        break;
+
+      case 'list_collections':
+        ws.send(JSON.stringify({ type: 'collections_list', collections: collectionOrchestrator.listCollections(PROFILES_DIR) }));
+        break;
+
+      case 'get_collection':
         try {
-          const journal = artifactOrchestrator.getDigitalJournal(msg.artifactId, PROFILES_DIR);
-          ws.send(JSON.stringify({ type: 'artifact_content', artifactId: msg.artifactId, ...journal }));
-        } catch (err) { ws.send(JSON.stringify({ type: 'artifact_error', message: err.message })); }
+          const coll = collectionOrchestrator.getCollection(msg.collectionId, PROFILES_DIR);
+          ws.send(JSON.stringify({ type: 'collection_detail', ...coll }));
+        } catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
         break;
 
-      case 'update_artifact_metadata':
+      case 'read_batch':
         try {
-          artifactOrchestrator.updateMetadata(msg.artifactId, msg.updates, PROFILES_DIR);
-          ws.send(JSON.stringify({ type: 'artifact_metadata_updated', artifactId: msg.artifactId }));
-        } catch (err) { ws.send(JSON.stringify({ type: 'artifact_error', message: err.message })); }
+          const batch = collectionOrchestrator.getBatchContent(msg.collectionId, msg.batchSlug, PROFILES_DIR);
+          ws.send(JSON.stringify({ type: 'batch_content', collectionId: msg.collectionId, ...batch }));
+        } catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
         break;
 
-      case 'abort_artifact':
-        artifactOrchestrator.abort(ws);
+      case 'update_collection_metadata':
+        try {
+          collectionOrchestrator.updateCollectionMetadata(msg.collectionId, msg.updates, PROFILES_DIR);
+          ws.send(JSON.stringify({ type: 'collection_metadata_updated', collectionId: msg.collectionId }));
+        } catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
+        break;
+
+      case 'update_collection_context':
+        try {
+          collectionOrchestrator.updateCollectionContextFile(msg.collectionId, msg.content, PROFILES_DIR);
+          ws.send(JSON.stringify({ type: 'collection_context_updated', collectionId: msg.collectionId }));
+        } catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
+        break;
+
+      case 'update_batch_metadata':
+        try {
+          collectionOrchestrator.updateBatchMetadata(msg.collectionId, msg.batchSlug, msg.updates, PROFILES_DIR);
+          ws.send(JSON.stringify({ type: 'batch_metadata_updated', collectionId: msg.collectionId, batchSlug: msg.batchSlug }));
+        } catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
+        break;
+
+      case 'resume_batch':
+        try { await collectionOrchestrator.resumeBatch(ws, msg.collectionId, msg.batchSlug, PROFILES_DIR); }
+        catch (err) { ws.send(JSON.stringify({ type: 'collection_error', message: err.message })); }
+        break;
+
+      case 'abort_collection':
+        collectionOrchestrator.abort(ws);
         break;
     }
   });
 });
 
 const PORT = process.env.PORT || 3141;
-server.listen(PORT, () => console.log(`ClaudeGPT Web UI running at http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`YourPsyche running at http://localhost:${PORT}`));

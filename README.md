@@ -1,20 +1,20 @@
-# ClaudeGPT
+# YourPsyche
 
 ChatGPT turned "google it" into "ChatGPT it" — and then stopped there. It remembers your name and forgets the rest. You pour something real into it and get a paragraph of "That sounds really tough" back. It agrees with everything, challenges nothing, and resets the moment things get deep.
 
-ClaudeGPT is an AI that actually knows you.
+YourPsyche is an AI that actually knows you.
 
 Not because it scraped your data or trained on your files — because you talked to it, and it listened. It builds a structured knowledge base about your life that gets sharper with every conversation. Your relationships, your goals, your dreams, your recurring patterns, your psychology. When you mention your ex, it already knows the history. When you describe a feeling, it connects it to the last three times you felt it. When you vent about work, it can tell you whether this is new frustration or the same pattern you've been running for six months.
 
 ## Where This Beats ChatGPT
 
-**1. Specificity to you.** ChatGPT's memory is a flat list of facts — your name, your job, a few preferences. ClaudeGPT maintains a four-layer knowledge architecture: your current state, your deep psychological patterns, a record of everything you've shared, and your relationship to the world around you. It routes every piece of input to the right place automatically. The result isn't a chatbot that remembers you — it's a system that *understands* you, and the understanding compounds with every conversation.
+**1. Specificity to you.** ChatGPT's memory is a flat list of facts — your name, your job, a few preferences. YourPsyche maintains a four-layer knowledge architecture: your current state, your deep psychological patterns, a record of everything you've shared, and your relationship to the world around you. It routes every piece of input to the right place automatically. The result isn't a chatbot that remembers you — it's a system that *understands* you, and the understanding compounds with every conversation.
 
-**2. Compounding.** Every conversation makes the next one smarter. The system follows a strict execution order: research what it knows, file what you shared, then respond. Nothing is lost. ChatGPT conversations are stateless episodes — brilliant in isolation, amnesiac in sequence. ClaudeGPT accumulates. Conversation 1 is good. Conversation 100 is something no AI product has ever done.
+**2. Compounding.** Every conversation makes the next one smarter. The system follows a strict execution order: research what it knows, file what you shared, then respond. Nothing is lost. ChatGPT conversations are stateless episodes — brilliant in isolation, amnesiac in sequence. YourPsyche accumulates. Conversation 1 is good. Conversation 100 is something no AI product has ever done.
 
 **3. Cross-domain linking.** A local semantic search engine maps your entire knowledge base by meaning, not keywords. When you talk about loneliness, it might surface a dream from three months ago, a journal entry about your dad, and a pattern it identified about how you handle distance. But the real linking isn't just search — it's structured metadata connecting your files, and a prompt that instructs the AI to follow threads across domains. The search finds what you wouldn't think to look for. The architecture makes sense of what it finds.
 
-**4. Directness.** ChatGPT is trained to validate. It has consumer guardrails baked in through reinforcement learning — it will never tell you something you don't want to hear. ClaudeGPT has explicit instructions to name your ego when it's operating, name your defenses when they're defending, and name the pattern when it's repeating. Default mode is analyst, not supporter. It's not trying to make you feel better — it's trying to show you what's actually going on.
+**4. Directness.** ChatGPT is trained to validate. It has consumer guardrails baked in through reinforcement learning — it will never tell you something you don't want to hear. YourPsyche has explicit instructions to name your ego when it's operating, name your defenses when they're defending, and name the pattern when it's repeating. Default mode is analyst, not supporter. It's not trying to make you feel better — it's trying to show you what's actually going on.
 
 ## What It Actually Looks Like
 
@@ -50,8 +50,8 @@ Nothing is pre-created. Structure emerges from what you share. The AI recognizes
 1. Install [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (VS Code extension or CLI)
 2. Clone this repo:
    ```bash
-   git clone https://github.com/matthewm936/claudeGPT.git
-   cd claudeGPT
+   git clone https://github.com/matthewm936/YourPsyche.git
+   cd YourPsyche
    ```
 3. Open it in VS Code and start talking
 

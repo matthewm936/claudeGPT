@@ -36,18 +36,19 @@ function trySend(run, msg) {
   if (run.ws?.readyState === 1) run.ws.send(JSON.stringify(msg));
 }
 
-export async function handleChat(ws, conversationId, text, repoDir, profileDir) {
-  let conv = conversations.load(conversationId);
+export async function handleChat(ws, conversationId, text, repoDir, profileDir, model) {
+  let conv = conversations.load(profileDir, conversationId);
   if (!conv) {
-    conv = conversations.create();
+    conv = conversations.create(profileDir);
     conv.id = conversationId;
-    conversations.save(conv);
+    conversations.save(profileDir, conv);
   }
 
   conv.messages.push({ role: 'user', content: text, timestamp: new Date().toISOString() });
-  conversations.save(conv);
+  conversations.save(profileDir, conv);
 
-  const args = ['-p', '--verbose', '--output-format', 'stream-json', '--permission-mode', 'acceptEdits', '--settings', '{"autoMemoryEnabled": false}'];
+  const selectedModel = model || 'sonnet';
+  const args = ['-p', '--verbose', '--output-format', 'stream-json', '--include-partial-messages', '--model', selectedModel, '--max-turns', '25', '--permission-mode', 'acceptEdits', '--settings', '{"autoMemoryEnabled": false}'];
   if (conv.sessionId) args.push('--resume', conv.sessionId);
   args.push(text);
 
@@ -62,7 +63,7 @@ export async function handleChat(ws, conversationId, text, repoDir, profileDir) 
     proc, ws, buffer: [],
     streamedText: '', toolsUsed: [], sentToolIds: new Set(),
     sessionId: conv.sessionId, turnText: '', turnHasTools: false,
-    conv, text, cwd,
+    conv, text, cwd, profileDir,
   };
   activeRuns.set(conversationId, run);
 
@@ -115,7 +116,7 @@ export async function handleChat(ws, conversationId, text, repoDir, profileDir) 
       if (conv.messages.filter(m => m.role === 'user').length === 1) {
         conv.title = text.slice(0, 60) + (text.length > 60 ? '...' : '');
       }
-      conversations.save(conv);
+      conversations.save(run.profileDir, conv);
       trySend(run, { type: 'response_complete', conversationId, sessionId: run.sessionId, costUsd: msg.total_cost_usd, finalText });
     }
   });

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Semantic search over the ClaudeGPT knowledge base.
+Semantic search over the YourPsyche knowledge base.
 
 Usage:
     # Build/rebuild the index

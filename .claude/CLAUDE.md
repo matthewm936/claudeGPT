@@ -1,4 +1,4 @@
-# ClaudeGPT — Dev Guide
+# YourPsyche — Dev Guide
 
 `CLAUDE.md` at repo root is the system prompt — it governs how Claude Code behaves as a personal AI. It's the core of the project.
 
@@ -59,18 +59,27 @@ The web UI uses a modular architecture. Both backend and frontend are split into
 
 ```
 web/
-  server.js              → Init + WS routing (~160 lines)
+  server.js              → Init + WS routing (~250 lines)
   lib/
     profiles.js          → Profile CRUD + .active-profile config
     conversations.js     → Conversation storage
     file-tree.js         → File tree + watcher + broadcast
     tool-humanize.js     → Tool name/path humanization
     claude-bridge.js     → Claude CLI spawn + stream parsing
-    import-orchestrator.js → Import pipeline coordination
+    import-orchestrator.js → ChatGPT import pipeline
     parse-export.js      → ChatGPT export parser
     import-worker-pool.js → Parallel ingestion workers
     summarize-worker.js  → Haiku summarization
     import-prompts.js    → Prompt templates
+    collection-manifest.js → Collection/batch manifest CRUD
+    collection-detect.js   → File type detection + grouping
+    collection-prompts.js  → Transcription, assembly, synthesis prompts
+    collection-transcribe.js → Image transcription via Claude workers
+    collection-audio.js    → Audio transcription via Whisper
+    collection-text.js     → Text file processing
+    collection-synthesis.js → Synthesis worker (KB updates from collections)
+    collection-dates.js    → Date interpolation for image batches
+    collection-orchestrator.js → Collection pipeline coordinator
   public/
     index.html           → Shell (loads ES modules + CSS sheets)
     app.js               → Init + event binding (~45 lines)
@@ -83,6 +92,9 @@ web/
       explorer.js        → File tree, tabs, drag-drop
       profiles.js        → Profile dropdown
       onboarding.js      → Import wizard + triage
+      collections.js     → Collection wizard (create, add batch, upload)
+      collection-browser.js → Sidebar collection list + detail view
+      collection-viewer.js  → Full-screen collection content reader
       utils.js           → escapeHtml, formatTime, linkify
     css/
       base.css           → Variables, reset, grid, shared markdown
@@ -90,6 +102,7 @@ web/
       chat.css           → Messages, streaming, tool log, input
       explorer.css       → File tree, tabs, viewer
       onboarding.css     → Onboarding + triage + live construction
+      collections.css    → Collection wizard, browser, viewer styles
 ```
 
 ### Server Management

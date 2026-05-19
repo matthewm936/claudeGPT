@@ -77,9 +77,12 @@
 .dropdown-profile.active { color: var(--accent); }
 .dropdown-profile .dp-actions { display: flex; align-items: center; gap: 0.4rem; }
 .dropdown-profile .dp-status { font-size: 0.7rem; color: var(--text-muted); }
-.dropdown-profile .dp-delete { font-size: 1rem; color: var(--text-faint); cursor: pointer; padding: 0 0.2rem; line-height: 1; opacity: 0; transition: opacity 0.1s, color 0.1s; }
-.dropdown-profile:hover .dp-delete { opacity: 1; }
+.dropdown-profile .dp-rename, .dropdown-profile .dp-delete { font-size: 1rem; color: var(--text-faint); cursor: pointer; padding: 0 0.2rem; line-height: 1; opacity: 0; transition: opacity 0.1s, color 0.1s; }
+.dropdown-profile:hover .dp-rename, .dropdown-profile:hover .dp-delete { opacity: 1; }
+.dropdown-profile .dp-rename { font-size: 0.85rem; }
+.dropdown-profile .dp-rename:hover { color: var(--accent); }
 .dropdown-profile .dp-delete:hover { color: var(--error); }
+.dp-rename-input { background: var(--bg-surface); border: 1px solid var(--accent); border-radius: 0.3rem; padding: 0.15rem 0.4rem; color: var(--text); font-size: 0.82rem; font-family: inherit; outline: none; width: 100%; }
 .dropdown-divider { height: 1px; background: var(--border); margin: 0.3rem 0; }
 .dropdown-create { display: flex; gap: 0.4rem; padding: 0.4rem 0.65rem; }
 .dropdown-create input { flex: 1; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 0.3rem; padding: 0.3rem 0.5rem; color: var(--text); font-size: 0.8rem; font-family: inherit; outline: none; }
