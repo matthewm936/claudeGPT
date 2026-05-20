@@ -1,6 +1,8 @@
 import { state, dom } from './state.js';
 import { send } from './ws.js';
 import { escapeHtml, linkifyKbPaths, scrollToBottom } from './utils.js';
+import { showOnboarding } from './onboarding.js';
+import { showCollectionWizard } from './collections.js';
 
 export function sendMessage() {
   const text = dom.chatInput.value.trim();
@@ -24,10 +26,7 @@ export function sendMessage() {
 }
 
 function sendChatMessage(text) {
-  const guide = document.getElementById('welcome-guide');
-  if (guide) guide.remove();
-  const antSvg = document.getElementById('welcome-ant-svg');
-  if (antSvg) antSvg.remove();
+  removeWelcomeGuide();
   appendMessage('user', text, false);
   send({ type: 'chat', conversationId: state.currentConversationId, text, model: state.selectedModel });
   dom.chatInput.value = '';
@@ -152,120 +151,60 @@ export function startRejoinStream() {
 export function showWelcomeGuide() {
   if (state.currentConversationId) return;
   if (dom.messages.children.length > 0) return;
-  if (state.collectionsList && state.collectionsList.length > 0) return;
-  // Don't show if profile already has conversations
   if (dom.convList && dom.convList.children.length > 0) return;
 
   const oldGuide = document.getElementById('welcome-guide');
   if (oldGuide) return;
 
+  const hasCollections = state.collectionsList && state.collectionsList.length > 0;
+  const showImport = !state.chatgptImported;
+  const showCollection = !hasCollections;
+
+  // Nothing to show — user has both done
+  if (!showImport && !showCollection) return;
+
   const guide = document.createElement('div');
   guide.id = 'welcome-guide';
+
+  let cardsHtml = '';
+  if (showImport) {
+    cardsHtml += `
+      <div class="welcome-card" id="welcome-card-import">
+        <div class="welcome-card-title">Import ChatGPT history</div>
+        <p class="welcome-card-desc">Already talk to ChatGPT? Import your export and the AI instantly learns who you are from thousands of past conversations.</p>
+        <button class="welcome-card-btn">Import</button>
+      </div>`;
+  }
+  if (showCollection) {
+    cardsHtml += `
+      <div class="welcome-card" id="welcome-card-collection">
+        <div class="welcome-card-title">Add a collection</div>
+        <p class="welcome-card-desc">Drop in anything from your past — voice memos, notebooks, PDFs, text files — and the AI reads, transcribes, and synthesizes it.</p>
+        <button class="welcome-card-btn">Add collection</button>
+      </div>`;
+  }
+
   guide.innerHTML = `
     <div class="welcome-heading">Start talking. The AI remembers everything.</div>
     <p class="welcome-text">Whatever you share here — thoughts, decisions, events, reflections — gets filed into your knowledge base. Over time, the AI builds a picture of who you are.</p>
     <div class="welcome-section">
       <div class="welcome-section-title">Skip the cold start</div>
-      <p class="welcome-text">The AI is most useful when it already knows you. Add a <strong>collection</strong> — drop in anything from your past and the AI reads, transcribes, and synthesizes it into your knowledge base.</p>
-      <div class="welcome-formats">
-        <span class="welcome-format">Voice memos</span>
-        <span class="welcome-format">PDFs</span>
-        <span class="welcome-format">Scanned notebooks</span>
-        <span class="welcome-format">Text files</span>
-        <span class="welcome-format">Folders of files</span>
-        <span class="welcome-format">Zip archives</span>
-      </div>
-      <div class="welcome-arrow-row">
-        <span class="welcome-arrow-label" id="welcome-arrow-anchor">Add your first collection</span>
-      </div>
+      <p class="welcome-text">The AI is most useful when it already knows you.</p>
+      <div class="welcome-cards">${cardsHtml}</div>
     </div>`;
   dom.messages.appendChild(guide);
 
-  // Draw ant-line once the add-card exists
-  const tryDraw = () => {
-    if (!document.getElementById('welcome-guide')) return;
-    if (document.querySelector('.collection-add-card')) { drawAntLine(); return; }
-    setTimeout(tryDraw, 300);
-  };
-  requestAnimationFrame(tryDraw);
+  // Wire up card clicks
+  const importCard = guide.querySelector('#welcome-card-import');
+  if (importCard) importCard.addEventListener('click', () => showOnboarding());
+  const collectionCard = guide.querySelector('#welcome-card-collection');
+  if (collectionCard) collectionCard.addEventListener('click', () => showCollectionWizard());
 }
 
-/** Remove welcome guide + ant-line (called when collections exist) */
+/** Remove welcome guide (called when collections exist or user starts chatting) */
 export function removeWelcomeGuide() {
   const guide = document.getElementById('welcome-guide');
   if (guide) guide.remove();
-  const svg = document.getElementById('welcome-ant-svg');
-  if (svg) svg.remove();
-}
-
-function drawAntLine() {
-  const anchor = document.getElementById('welcome-arrow-anchor');
-  const target = document.querySelector('.collection-add-card');
-  if (!anchor || !target) return;
-
-  const old = document.getElementById('welcome-ant-svg');
-  if (old) old.remove();
-
-  const a = anchor.getBoundingClientRect();
-  const t = target.getBoundingClientRect();
-
-  // Start: right edge of label
-  const x1 = a.right + 6;
-  const y1 = a.top + a.height / 2;
-  // End: stop 18px short of target left edge
-  const x2 = t.left - 18;
-  const y2 = t.top + t.height / 2;
-
-  // Single cubic bezier — cp1 arcs up from start, cp2 at endpoint Y for horizontal arrival
-  const cp1x = x1 + (x2 - x1) * 0.3;
-  const cp1y = y1 - 40;
-  const cp2x = x2 - (x2 - x1) * 0.3;
-  const cp2y = y2;
-  const d = `M${x1},${y1} C${cp1x},${cp1y} ${cp2x},${cp2y} ${x2},${y2}`;
-
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.id = 'welcome-ant-svg';
-  svg.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50;';
-
-  // Arrowhead marker
-  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-  marker.setAttribute('id', 'ant-arrow');
-  marker.setAttribute('viewBox', '0 0 8 6');
-  marker.setAttribute('refX', '8');
-  marker.setAttribute('refY', '3');
-  marker.setAttribute('markerWidth', '8');
-  marker.setAttribute('markerHeight', '6');
-  marker.setAttribute('orient', 'auto');
-  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  arrow.setAttribute('d', 'M0,0 L8,3 L0,6');
-  arrow.setAttribute('fill', 'none');
-  arrow.setAttribute('stroke', 'var(--accent)');
-  arrow.setAttribute('stroke-width', '1');
-  arrow.setAttribute('opacity', '0.45');
-  marker.appendChild(arrow);
-  defs.appendChild(marker);
-  svg.appendChild(defs);
-
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', d);
-  path.setAttribute('fill', 'none');
-  path.setAttribute('stroke', 'var(--accent)');
-  path.setAttribute('stroke-width', '1');
-  path.setAttribute('stroke-dasharray', '4 4');
-  path.setAttribute('opacity', '0.35');
-  path.setAttribute('marker-end', 'url(#ant-arrow)');
-  path.classList.add('ant-line');
-
-  svg.appendChild(path);
-  document.body.appendChild(svg);
-
-  const onResize = () => {
-    if (!document.getElementById('welcome-guide')) { window.removeEventListener('resize', onResize); svg.remove(); return; }
-    drawAntLine();
-  };
-  window.removeEventListener('resize', drawAntLine);
-  window.addEventListener('resize', onResize);
 }
 
 export function appendError(text) {

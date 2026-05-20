@@ -135,8 +135,8 @@ function createOverlay() {
         <h1>Collection processed</h1>
         <p class="collection-subtitle">Your content has been transcribed, assembled, and synthesized into your knowledge base.</p>
         <div class="collection-completion-cta">
-          <button class="collection-btn primary collection-talk-btn" id="collection-talk-btn">Talk to AI about this</button>
-          <p class="collection-talk-hint">Explore patterns, threads, and connections the AI found</p>
+          <button class="collection-btn primary collection-talk-btn" id="collection-talk-btn">Start a conversation</button>
+          <p class="collection-talk-hint">You decide what to explore — ask anything about what's here</p>
         </div>
         <div class="collection-completion-stats">
           <div class="collection-stat"><span class="stat-value" id="collection-stat-files">0</span><span class="stat-label">Files</span></div>
@@ -189,9 +189,8 @@ function createOverlay() {
   });
   div.querySelector('#collection-talk-btn').addEventListener('click', () => {
     const meta = state.collectionSession?.metadata;
-    const parts = [`I want to discuss my "${meta?.name || 'collection'}" collection.`];
+    const parts = [`I just ingested my "${meta?.name || 'collection'}" collection.`];
     if (meta?.timeline) parts.push(`Timeline: ${meta.timeline}.`);
-    parts.push('Read the collection and tell me what stands out — patterns, threads, anything interesting.');
     hideCollectionWizard();
     send({ type: 'list_collections' });
     const chatInput = document.getElementById('chat-input');

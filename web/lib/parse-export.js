@@ -13,11 +13,17 @@
 function walkMappingTree(mapping) {
   if (!mapping) return [];
 
-  // Find root node (no parent)
-  const rootId = Object.keys(mapping).find(k => {
-    const node = mapping[k];
-    return node.parent === null || node.parent === undefined;
-  });
+  // Build children linkage from parent refs (some exports have empty children arrays)
+  let rootId = null;
+  for (const [id, node] of Object.entries(mapping)) {
+    if (node.parent === null || node.parent === undefined) {
+      rootId = id;
+    } else if (mapping[node.parent]) {
+      const parent = mapping[node.parent];
+      if (!parent.children) parent.children = [];
+      if (!parent.children.includes(id)) parent.children.push(id);
+    }
+  }
 
   if (!rootId) return [];
 
@@ -97,15 +103,11 @@ function detectCreativeContent(text) {
   const shortLines = lines.filter(l => l.trim().length < 60);
   const hasStanzaPattern = shortLines.length > 5 && shortLines.length / lines.length > 0.6;
 
-  // Explicit creative prompts
-  const creativePrompts = /\b(write me|write a|create a|compose|poem|story|essay|song|lyrics|verse|stanza|chapter)\b/i;
+  // Explicit creative prompts — only actual co-authored creative output
+  const creativePrompts = /\b(write me|write a|compose|poem|story|song|lyrics|verse|stanza|chapter)\b/i;
   const hasCreativePrompt = creativePrompts.test(text);
 
-  // Framework/system building
-  const frameworkPatterns = /\b(framework|system|methodology|protocol|architecture|design|blueprint|manifesto)\b/i;
-  const hasFramework = frameworkPatterns.test(text) && text.length > 500;
-
-  return hasStanzaPattern || hasCreativePrompt || hasFramework;
+  return hasStanzaPattern || hasCreativePrompt;
 }
 
 /**
@@ -144,19 +146,57 @@ export function parseExportFiles(files) {
 }
 
 /**
+ * Heuristic pre-filters — skip conversations that are obviously not personal.
+ * Returns { dominated: true, reason } or { dominated: false }.
+ */
+const PERSONAL_RE = /\b(I|I'm|I've|I'll|I'd|my|me|myself|mine)\b/;
+const CODE_RE = /[{}\[\]<>\/;=]|function |const |var |import |class |def |return |if \(|for \(/g;
+
+function heuristicSkip(userText, msgCount) {
+  if (userText.length < 50) return { dominated: true, reason: 'too_short' };
+
+  const codeMatches = (userText.match(CODE_RE) || []).length;
+  const codeRatio = codeMatches / (userText.length / 50);
+  if (codeRatio > 3 && userText.length > 100) return { dominated: true, reason: 'code_heavy' };
+
+  if (!PERSONAL_RE.test(userText)) return { dominated: true, reason: 'no_personal' };
+
+  if (msgCount === 1 && userText.length < 150) return { dominated: true, reason: 'single_short' };
+
+  return { dominated: false };
+}
+
+/**
  * Build the triage queue: sorted, filtered, ready for Haiku summarization.
+ * Returns { triageQueue, preSkipped, preSkipStats }.
  */
 export function buildTriageQueue(conversations) {
-  return conversations
-    // Filter out empty conversations
-    .filter(c => c.stats.userMessageCount > 0 && c.stats.userCharCount > 10)
-    // Sort newest first
-    .sort((a, b) => {
-      if (!a.createTime && !b.createTime) return 0;
-      if (!a.createTime) return 1;
-      if (!b.createTime) return -1;
-      return b.createTime - a.createTime;
-    });
+  const nonEmpty = conversations
+    .filter(c => c.stats.userMessageCount > 0 && c.stats.userCharCount > 10);
+
+  const triageQueue = [];
+  const preSkipped = [];
+  const preSkipStats = { too_short: 0, code_heavy: 0, no_personal: 0, single_short: 0 };
+
+  for (const c of nonEmpty) {
+    const h = heuristicSkip(c.userText, c.stats.userMessageCount);
+    if (h.dominated) {
+      preSkipped.push(c);
+      preSkipStats[h.reason]++;
+    } else {
+      triageQueue.push(c);
+    }
+  }
+
+  // Sort newest first
+  triageQueue.sort((a, b) => {
+    if (!a.createTime && !b.createTime) return 0;
+    if (!a.createTime) return 1;
+    if (!b.createTime) return -1;
+    return b.createTime - a.createTime;
+  });
+
+  return { triageQueue, preSkipped, preSkipStats };
 }
 
 /**

@@ -45,7 +45,8 @@ function reparseZip(profilesDir) {
   const buf = fs.readFileSync(zipPath);
   const files = extractExportFiles(buf);
   const conversations = parseExportFiles(files);
-  return { files, conversations, triageQueue: buildTriageQueue(conversations) };
+  const { triageQueue, preSkipped } = buildTriageQueue(conversations);
+  return { files, conversations, triageQueue, preSkipped };
 }
 
 // --- Upload + Triage ---
@@ -60,14 +61,21 @@ export async function handleUploadExport(ws, data, profilesDir) {
   checkpoint.clear(dir);
 
   const files = extractExportFiles(buf);
+  console.log(`[import] Extracted ${files.length} files from zip (${(buf.length / 1024 / 1024).toFixed(1)}MB)`);
   const conversations = parseExportFiles(files);
-  const triageQueue = buildTriageQueue(conversations);
+  console.log(`[import] Parsed ${conversations.length} conversations from ${files.filter(f => f.name.endsWith('.json')).length} JSON files`);
+  const { triageQueue, preSkipped, preSkipStats } = buildTriageQueue(conversations);
+  console.log(`[import] Triage queue: ${triageQueue.length} for Haiku, ${preSkipped.length} pre-skipped (short=${preSkipStats.too_short}, code=${preSkipStats.code_heavy}, impersonal=${preSkipStats.no_personal})`);
+
+  // Pre-skipped conversations get auto-decided as 'skip'
+  const decisions = new Map();
+  for (const c of preSkipped) decisions.set(c.id, 'skip');
 
   importSession = {
     conversations,
     triageQueue,
     conversationMap: new Map(conversations.map(c => [c.id, c])),
-    decisions: new Map(),
+    decisions,
     askItems: new Map(),
     triageResults: [],  // full triage items for checkpoint
     abortController: new AbortController(),
@@ -76,7 +84,9 @@ export async function handleUploadExport(ws, data, profilesDir) {
   ws.send(JSON.stringify({
     type: 'import_parsed',
     totalFiles: files.length,
-    totalConversations: triageQueue.length,
+    totalConversations: triageQueue.length + preSkipped.length,
+    preSkipped: preSkipped.length,
+    preSkipStats,
     totalSize: triageQueue.reduce((s, c) => s + c.stats.userCharCount, 0),
   }));
 

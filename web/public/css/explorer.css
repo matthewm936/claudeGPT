@@ -35,8 +35,8 @@
 #file-viewer blockquote { border-left: 2px solid var(--user-border); padding-left: 0.8rem; color: var(--text-dim); }
 #file-viewer strong { color: var(--text-light); }
 
-/* Import checklist item — hidden for now */
-.import-checklist-item { display: none; /* disabled — re-enable when ChatGPT import is tested */ align-items: center; gap: 0.5rem; padding: 0.45rem 0.7rem; margin: 0.3rem 0.5rem; cursor: pointer; border-radius: 0.35rem; transition: background 0.1s; }
+/* Import checklist item */
+.import-checklist-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.7rem; margin: 0.3rem 0.5rem; cursor: pointer; border-radius: 0.35rem; transition: background 0.1s; }
 .import-checklist-item:hover { background: var(--bg-hover); }
 .import-check { width: 0.85rem; height: 0.85rem; border: 1.5px solid var(--border-strong); border-radius: 0.2rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; line-height: 1; }
 .import-checklist-item:hover .import-check { border-color: var(--accent); }

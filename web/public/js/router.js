@@ -9,6 +9,7 @@ import { showOnboarding, hideOnboarding, resumeFromCheckpoint, updateParsed, upd
 import { onCollectionCreated, onBatchCreated, handleProgress as collectionProgress, handleFileProcessed as collectionFileProcessed, handleSynthesisUpdate, handleComplete as collectionComplete, handleToolActivity as collectionToolActivity, handleError as collectionError } from './collections.js';
 import { renderCollectionList, renderImportItem } from './collection-browser.js';
 import { openCollectionViewer, loadBatchIntoViewer, isViewerOpen } from './collection-viewer.js';
+import { handleClaudeStatus } from './setup.js';
 
 export function handleMessage(msg) {
   switch (msg.type) {
@@ -41,6 +42,10 @@ export function handleMessage(msg) {
     case 'profile_selected': handleProfileSelected(msg); break;
     case 'profile_deleted': handleProfileDeleted(msg); break;
     case 'profile_renamed': handleProfileRenamed(msg); break;
+
+    // Claude CLI status
+    case 'claude_status': handleClaudeStatus(msg); break;
+    case 'claude_login_started': break; // UI already showing waiting state
 
     // Onboarding
     case 'onboarding_status':

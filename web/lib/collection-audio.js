@@ -1,20 +1,122 @@
 /**
- * Audio processing for collections via Whisper CLI.
- * Transcribes audio files and writes markdown transcripts.
+ * Audio processing for collections.
+ * Prefers whisper-cpp (Metal-accelerated on Apple Silicon) with fallback to Python whisper.
  */
 
 import fs from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 
-const CONCURRENCY = 2;
+const CONCURRENCY = 4;
 
-/**
- * Run Whisper on a single audio file. Returns transcript text.
- */
-function runWhisper(filePath, signal) {
+// --- Backend detection (cached) ---
+
+let _backend = null;
+
+function detectBackend() {
+  if (_backend) return _backend;
+
+  // Try whisper-cpp first (5-10x faster on Apple Silicon via Metal)
+  // Brew installs it as whisper-cli (1.8+) or whisper-cpp (older)
+  for (const bin of ['whisper-cli', 'whisper-cpp']) {
+    try {
+      execSync(`which ${bin}`, { stdio: 'pipe' });
+      const modelPath = findWhisperCppModel();
+      if (modelPath) {
+        _backend = { type: 'whisper-cpp', bin, modelPath };
+        console.log(`[audio] Using ${bin} with model: ${modelPath}`);
+        return _backend;
+      }
+    } catch {}
+  }
+
+  // Fall back to Python whisper (pip install openai-whisper)
+  try {
+    const whisperPath = execSync('which whisper', { stdio: 'pipe' }).toString().trim();
+    // Make sure it's Python whisper, not whisper-cpp's `whisper` shim
+    const isScript = fs.readFileSync(whisperPath, 'utf-8').slice(0, 100).includes('python');
+    if (isScript) {
+      _backend = { type: 'python-whisper' };
+      console.log('[audio] Using Python whisper (install whisper-cpp for 5-10x speedup)');
+      return _backend;
+    }
+  } catch {}
+
+  throw new Error('No whisper backend found. Install whisper-cpp (brew install whisper-cpp) or Python whisper.');
+}
+
+function findWhisperCppModel() {
+  const candidates = [
+    '/opt/homebrew/share/whisper-cpp/models/ggml-base.en.bin',
+    '/opt/homebrew/share/whisper-cpp/models/ggml-base.bin',
+    '/usr/local/share/whisper-cpp/models/ggml-base.en.bin',
+    '/usr/local/share/whisper-cpp/models/ggml-base.bin',
+    path.join(process.env.HOME || '', '.whisper-cpp/models/ggml-base.en.bin'),
+    path.join(process.env.HOME || '', '.whisper-cpp/models/ggml-base.bin'),
+  ];
+  return candidates.find(p => fs.existsSync(p)) || null;
+}
+
+// --- Convert non-WAV to WAV for whisper-cpp ---
+
+function convertToWav(filePath, signal) {
+  if (/\.wav$/i.test(filePath)) return Promise.resolve(filePath);
+
+  const wavPath = filePath.replace(/\.[^.]+$/, '.wav');
   return new Promise((resolve, reject) => {
-    const proc = spawn('whisper', [filePath, '--model', 'base', '--output_format', 'txt'], {
+    const proc = spawn('ffmpeg', ['-i', filePath, '-ar', '16000', '-ac', '1', '-y', wavPath], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    if (signal) signal.addEventListener('abort', () => proc.kill('SIGTERM'), { once: true });
+    proc.on('close', (code) => code === 0 ? resolve(wavPath) : reject(new Error(`ffmpeg failed (code ${code})`)));
+    proc.on('error', reject);
+  });
+}
+
+// --- Transcription ---
+
+function runWhisperCpp(filePath, modelPath, signal) {
+  return new Promise(async (resolve, reject) => {
+    let wavPath;
+    try {
+      wavPath = await convertToWav(filePath, signal);
+    } catch (err) {
+      return reject(new Error(`Audio conversion failed: ${err.message}`));
+    }
+
+    const outBase = wavPath.replace(/\.wav$/, '');
+    const backend = detectBackend();
+    const proc = spawn(backend.bin, ['-m', modelPath, '-f', wavPath, '-otxt', '-of', outBase], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stderr = '';
+    proc.stderr.on('data', d => { stderr += d.toString(); });
+    if (signal) signal.addEventListener('abort', () => proc.kill('SIGTERM'), { once: true });
+
+    proc.on('close', (code) => {
+      // Clean up temp wav if we created one
+      if (wavPath !== filePath && fs.existsSync(wavPath)) fs.unlinkSync(wavPath);
+
+      if (code !== 0) return reject(new Error(`whisper-cpp failed (code ${code}): ${stderr.slice(-200)}`));
+
+      const txtPath = outBase + '.txt';
+      if (fs.existsSync(txtPath)) {
+        const text = fs.readFileSync(txtPath, 'utf-8');
+        fs.unlinkSync(txtPath);
+        resolve(text);
+      } else {
+        resolve('(no transcript generated)');
+      }
+    });
+
+    proc.on('error', reject);
+  });
+}
+
+function runPythonWhisper(filePath, signal) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('whisper', [filePath, '--model', 'base.en', '--output_format', 'txt'], {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
@@ -27,22 +129,26 @@ function runWhisper(filePath, signal) {
     if (signal) signal.addEventListener('abort', () => proc.kill('SIGTERM'), { once: true });
 
     proc.on('close', (code) => {
-      if (code !== 0) reject(new Error(`Whisper failed (code ${code}): ${stderr.slice(-200)}`));
-      else {
-        // Whisper writes a .txt file next to the input — read it
-        const txtPath = filePath.replace(/\.[^.]+$/, '.txt');
-        if (fs.existsSync(txtPath)) {
-          const text = fs.readFileSync(txtPath, 'utf-8');
-          fs.unlinkSync(txtPath); // clean up whisper output
-          resolve(text);
-        } else {
-          resolve(stdout || '(no transcript generated)');
-        }
+      if (code !== 0) return reject(new Error(`Whisper failed (code ${code}): ${stderr.slice(-200)}`));
+
+      const txtPath = filePath.replace(/\.[^.]+$/, '.txt');
+      if (fs.existsSync(txtPath)) {
+        const text = fs.readFileSync(txtPath, 'utf-8');
+        fs.unlinkSync(txtPath);
+        resolve(text);
+      } else {
+        resolve(stdout || '(no transcript generated)');
       }
     });
 
     proc.on('error', reject);
   });
+}
+
+function transcribeFile(filePath, signal) {
+  const backend = detectBackend();
+  if (backend.type === 'whisper-cpp') return runWhisperCpp(filePath, backend.modelPath, signal);
+  return runPythonWhisper(filePath, signal);
 }
 
 /**
@@ -75,7 +181,7 @@ export async function transcribeAudio(manifest, batchDir, callbacks, signal) {
     const dateMatch = filename.match(/(\d{4}-\d{2}-\d{2})/);
 
     try {
-      const text = await runWhisper(filePath, signal);
+      const text = await transcribeFile(filePath, signal);
 
       const frontMatter = [
         '---',

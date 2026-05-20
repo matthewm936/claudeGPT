@@ -9,7 +9,7 @@ import { buildIngestionPrompt, buildSynthesisPrompt } from './import-prompts.js'
 import { prepareForIngestion } from './parse-export.js';
 
 const MAX_BATCH_SIZE = 400 * 1024; // 400KB per batch
-const DEFAULT_CONCURRENCY = 3;
+const DEFAULT_CONCURRENCY = 2; // conservative for Pro plan limits
 
 /**
  * Batch conversations by cumulative content size,
@@ -175,17 +175,28 @@ export async function processAllBatches(batches, cwd, callbacks = {}, signal, co
     const { batch, index } = pending.shift();
 
     const promise = runWorker(batch, index, batches.length, cwd, { onFileCreated, onToolActivity }, signal)
-      .catch(err => {
+      .catch(async (err) => {
         console.error(`Ingestion worker ${index} failed:`, err.message);
+        // Back off on failure (likely rate/usage limit)
+        const isRateLimit = /rate|limit|throttl|overloaded|529/i.test(err.message);
+        if (isRateLimit && !signal?.aborted) {
+          console.log(`[worker ${index}] Rate limited — waiting 60s before next batch`);
+          await new Promise(r => setTimeout(r, 60000));
+        }
         return { batchIndex: index, filesCreated: [], cost: 0, success: false, error: err.message };
       })
-      .then(result => {
+      .then(async (result) => {
         results.push(result);
         completedBatches++;
         totalFilesCreated += result.filesCreated.length;
 
         if (onBatchComplete) onBatchComplete(result);
         if (onProgress) onProgress({ completedBatches, totalBatches: batches.length, totalFilesCreated });
+
+        // Small delay between batches to stay under rate limits
+        if (pending.length > 0 && !signal?.aborted) {
+          await new Promise(r => setTimeout(r, 3000));
+        }
 
         active.delete(promise);
         return runNext();

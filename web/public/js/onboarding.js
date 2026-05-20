@@ -96,10 +96,10 @@ export function showOnboarding() {
         <div id="triage-phase">
           <!-- Phase A: Discovery -->
           <div id="triage-discovery">
-            <div class="discovery-number" id="discovery-number">0</div>
-            <div class="discovery-label">conversations found</div>
-            <p class="discovery-explain">We're reading through your history to find the conversations that reveal who you are &mdash; your reflections, relationships, creative work, goals, and patterns. Everything else gets left behind.</p>
-            <div class="discovery-status"><span class="pulse-dot"></span> <span id="discovery-status-text">Reading...</span></div>
+            <div class="discovery-number hidden" id="discovery-number">0</div>
+            <div class="discovery-label" id="discovery-label">conversations found</div>
+            <p class="discovery-explain" id="discovery-explain">Extracting and parsing your ChatGPT export...</p>
+            <div class="discovery-status"><span class="pulse-dot"></span> <span id="discovery-status-text">Parsing...</span></div>
           </div>
 
           <!-- Phase B+C: Classification + Review -->
@@ -136,6 +136,10 @@ export function showOnboarding() {
                 </div>
                 <div class="preview-content" id="preview-content"></div>
               </div>
+            </div>
+            <div id="ask-banner" class="hidden">
+              <span id="ask-banner-text">3 conversations need your input before we can continue</span>
+              <button id="ask-banner-btn" class="onboarding-btn secondary">Show them</button>
             </div>
             <div id="triage-actions">
               <div id="auto-ingest-notice" class="hidden">
@@ -192,6 +196,14 @@ function setupOnboardingListeners() {
   document.getElementById('triage-ingest-btn').addEventListener('click', startIngestion);
   document.getElementById('preview-close').addEventListener('click', closeConversationPreview);
   document.getElementById('auto-ingest-cancel').addEventListener('click', cancelAutoIngest);
+  document.getElementById('ask-banner-btn').addEventListener('click', () => {
+    // Activate the "Need input" filter and scroll feed to top
+    document.querySelectorAll('#triage-filters .triage-filter').forEach(b => b.classList.remove('active'));
+    const askBtn = document.querySelector('#triage-filters .triage-filter[data-filter="ask"]');
+    if (askBtn) { askBtn.classList.add('active'); filterTriageItems('ask'); }
+    const feed = document.getElementById('triage-feed');
+    if (feed) feed.scrollTop = 0;
+  });
 }
 
 function handleExportFile(file) {
@@ -236,7 +248,10 @@ function animateNumber(el, target, duration = 1000) {
 }
 
 export function updateParsed(msg) {
-  state.triageTotal = msg.totalConversations || msg.totalFiles || 0;
+  const totalFound = msg.totalConversations || msg.totalFiles || 0;
+  const preSkipped = msg.preSkipped || 0;
+  const triageCount = totalFound - preSkipped;
+  state.triageTotal = triageCount;
   state.triageSummarized = 0;
   state.triageItems = [];
   state.triageDecisions = {};
@@ -253,13 +268,25 @@ export function updateParsed(msg) {
   if (discovery) discovery.classList.remove('hidden');
   if (classify) classify.classList.add('hidden');
 
-  // Animate the big number (slow enough to read)
+  // Reveal the count and animate it
   const numEl = document.getElementById('discovery-number');
-  if (numEl) animateNumber(numEl, state.triageTotal, 2200);
+  if (numEl) { numEl.classList.remove('hidden'); animateNumber(numEl, totalFound, 2200); }
 
-  // Set up classify progress
+  // Update discovery text — show pre-skip stats if any
+  const explain = document.getElementById('discovery-explain');
+  if (explain) {
+    if (preSkipped > 0) {
+      explain.textContent = `${preSkipped} conversations auto-skipped (short queries, code pastes, impersonal lookups). Classifying the remaining ${triageCount} with AI.`;
+    } else {
+      explain.textContent = "Reading through your history to find conversations that reveal who you are.";
+    }
+  }
+  const statusText = document.getElementById('discovery-status-text');
+  if (statusText) statusText.textContent = 'Classifying...';
+
+  // Set up classify progress for the AI-triaged portion only
   const progressEl = document.getElementById('classify-progress');
-  if (progressEl) progressEl.textContent = `0 of ${state.triageTotal}`;
+  if (progressEl) progressEl.textContent = `0 of ${triageCount}`;
 }
 
 // --- Phase A → B transition ---
@@ -332,7 +359,7 @@ export function updateProgress(msg) {
     const fill = document.getElementById('progress-fill');
     const text = document.getElementById('progress-text');
     if (fill) fill.style.width = '90%';
-    if (text) text.textContent = 'Synthesizing everything into a profile of who you are...';
+    if (text) text.textContent = 'Merging duplicates and cleaning up...';
   }
 }
 
@@ -584,7 +611,21 @@ function resolveAsk(id, decision) {
     if (reason) reason.remove();
   }
   updateLiveCounts();
+  updateAskBanner();
   checkAutoIngest();
+}
+
+function updateAskBanner() {
+  const banner = document.getElementById('ask-banner');
+  if (!banner) return;
+  const unresolvedCount = Object.values(state.triageAskItems).filter(a => !a.resolved).length;
+  if (triageComplete && unresolvedCount > 0) {
+    const text = document.getElementById('ask-banner-text');
+    if (text) text.textContent = `${unresolvedCount} conversation${unresolvedCount === 1 ? '' : 's'} need${unresolvedCount === 1 ? 's' : ''} your input before we can continue`;
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
 }
 
 function openConversationPreview(id) {
@@ -667,6 +708,7 @@ export function onTriageComplete() {
   }
 
   triageComplete = true;
+  updateAskBanner();
   checkAutoIngest();
 }
 
@@ -751,13 +793,21 @@ function closeLivePreview() {
 export function addToolActivity(msg) {
   const activityEl = document.getElementById('ingest-activity');
   if (!activityEl) return;
+  activityEl.classList.remove('hidden');
 
   const toolLabels = { Read: 'Reading', Glob: 'Scanning', Grep: 'Searching', Bash: 'Running' };
   const label = toolLabels[msg.tool] || msg.tool;
   const detail = msg.detail ? msg.detail.replace(/^.*\//, '') : '';
+  const worker = msg.worker != null ? `W${msg.worker + 1}` : '';
 
-  activityEl.innerHTML = `<span class="pulse-dot-small"></span> <span class="activity-label">${escapeHtml(label)}</span> <span class="activity-detail">${escapeHtml(detail)}</span>`;
-  activityEl.classList.remove('hidden');
+  const line = document.createElement('div');
+  line.className = 'activity-line';
+  line.innerHTML = `${worker ? `<span class="activity-worker">${worker}</span>` : ''}<span class="activity-label">${escapeHtml(label)}</span> <span class="activity-detail">${escapeHtml(detail)}</span>`;
+  activityEl.appendChild(line);
+
+  // Keep last 8 lines
+  while (activityEl.children.length > 8) activityEl.removeChild(activityEl.firstChild);
+  activityEl.scrollTop = activityEl.scrollHeight;
 }
 
 function humanizeSlug(filename) {

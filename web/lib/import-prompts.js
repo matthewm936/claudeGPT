@@ -193,10 +193,8 @@ The KB exists in the current directory. Your tasks:
    - People files: merge into single definitive file per person
    - Conversation records: merge same-date entries if they cover the same conversation
    - Creative work: deduplicate, keeping the complete version
-3. Create now.md — factual living snapshot based on the most recent data. Only include facts the user stated, not AI interpretations.
-4. Create timeline.md — chronological index of events and conversations by date.
 
-DO NOT create understanding/psyche.md, understanding/summary.md, or understanding/patterns/ from import data. The understanding layer is built through direct conversation with the user over time. Import data provides raw material, not conclusions.
+DO NOT create now.md, timeline.md, or any understanding/ files (psyche.md, summary.md, patterns/). All of these are built through direct conversation with the user over time, not inferred from imports. Import data provides raw material only.
 
 After merging, delete any redundant duplicate files.
 

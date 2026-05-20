@@ -9,19 +9,19 @@
 /* Welcome state */
 #messages:empty::after { content: 'What\2019s on your mind...'; display: block; text-align: center; color: var(--text-faint); margin-top: 40vh; font-size: 1rem; letter-spacing: 0.01em; }
 
-/* Inline welcome guide (replaces forced onboarding) */
-#welcome-guide { margin: 15vh auto 0; max-width: 480px; }
+/* Inline welcome guide */
+#welcome-guide { margin: 12vh auto 0; max-width: 520px; }
 .welcome-heading { font-size: 1.2rem; font-weight: 500; color: var(--text-light); margin-bottom: 0.8rem; letter-spacing: -0.01em; }
 .welcome-text { font-size: 0.88rem; color: var(--text-dim); line-height: 1.65; margin-bottom: 0.6rem; }
-.welcome-text strong { color: var(--accent); font-weight: 500; }
 .welcome-section { margin-top: 1.4rem; }
-.welcome-section-title { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 0.35rem; }
-.welcome-formats { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; }
-.welcome-format { font-size: 0.75rem; color: var(--text-dim); padding: 0.2rem 0.55rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 1rem; }
-.welcome-arrow-row { display: flex; align-items: center; gap: 0.4rem; margin-top: 1rem; justify-content: flex-end; }
-.welcome-arrow-label { font-size: 0.8rem; color: var(--accent); font-weight: 500; opacity: 0.55; }
-.ant-line { animation: march 0.8s linear infinite; }
-@keyframes march { to { stroke-dashoffset: -8; } }
+.welcome-section-title { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; margin-bottom: 0.5rem; }
+.welcome-cards { display: flex; gap: 0.75rem; margin-top: 0.75rem; }
+.welcome-card { flex: 1; padding: 1rem; border: 1px solid var(--border); border-radius: 0.5rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+.welcome-card:hover { border-color: var(--accent); background: var(--bg-raised); }
+.welcome-card-title { font-size: 0.9rem; font-weight: 500; color: var(--text-light); margin-bottom: 0.4rem; }
+.welcome-card-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.55; margin-bottom: 0.75rem; }
+.welcome-card-btn { font-size: 0.78rem; padding: 0.35rem 0.8rem; background: var(--accent); color: var(--bg); border: none; border-radius: 0.3rem; cursor: pointer; font-weight: 500; }
+.welcome-card-btn:hover { opacity: 0.9; }
 
 .message { max-width: 100%; line-height: 1.75; white-space: pre-wrap; font-size: 0.96rem; letter-spacing: 0.01em; }
 .message .msg-role { display: none; }

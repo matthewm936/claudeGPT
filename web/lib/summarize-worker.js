@@ -7,7 +7,7 @@ import { spawn } from 'child_process';
 import { buildSummaryPrompt, parseSummaryResponse } from './import-prompts.js';
 
 const BATCH_SIZE = 30; // conversations per Haiku call
-const MAX_CONCURRENCY = 5; // parallel claude CLI calls
+const MAX_CONCURRENCY = 3; // parallel claude CLI calls (conservative for Pro plan limits)
 
 /**
  * Run a single claude CLI call for one batch — prompt piped via stdin, text out.
@@ -117,12 +117,18 @@ export async function summarizeAll(triageQueue, { onBatchStart, onBatchComplete,
     if (pending.length === 0 || signal?.aborted) return;
     const [batchIndex, batch] = pending.shift();
     const promise = processBatch(batchIndex, batch)
-      .catch(err => {
+      .catch(async (err) => {
         failedBatches++;
         console.error(`[triage] batch ${batchIndex + 1} failed:`, err.message);
         if (onError) onError(`Batch ${batchIndex + 1} failed: ${err.message}`);
         summarized += batch.length;
         if (onProgress) onProgress({ summarized, total: triageQueue.length });
+        // Back off on rate/usage limits
+        const isRateLimit = /rate|limit|throttl|overloaded|529/i.test(err.message);
+        if (isRateLimit && !signal?.aborted) {
+          console.log(`[triage] Rate limited — waiting 30s`);
+          await new Promise(r => setTimeout(r, 30000));
+        }
       })
       .finally(() => {
         active.delete(promise);

@@ -11,6 +11,7 @@ import * as fileTree from './lib/file-tree.js';
 import * as claudeBridge from './lib/claude-bridge.js';
 import * as importOrchestrator from './lib/import-orchestrator.js';
 import * as collectionOrchestrator from './lib/collection-orchestrator.js';
+import { checkHealth, triggerLogin } from './lib/claude-health.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = path.resolve(__dirname, '..');
@@ -22,7 +23,7 @@ if (profiles.getActive()) fileTree.setupWatcher();
 
 const app = express();
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server, maxPayload: 512 * 1024 * 1024 });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -32,6 +33,7 @@ wss.on('connection', (ws) => {
   fileTree.addClient(ws);
   ws.on('close', () => fileTree.removeClient(ws));
 
+  // Register message handler FIRST (health check is async and would block it)
   ws.on('message', async (data) => {
     let msg;
     try { msg = JSON.parse(data); } catch { return; }
@@ -162,6 +164,17 @@ wss.on('connection', (ws) => {
         ws.send(JSON.stringify({ type: 'onboarding_complete' }));
         break;
 
+      case 'claude_check': {
+        const health = await checkHealth();
+        ws.send(JSON.stringify({ type: 'claude_status', ...health }));
+        break;
+      }
+
+      case 'claude_login':
+        triggerLogin();
+        ws.send(JSON.stringify({ type: 'claude_login_started' }));
+        break;
+
       case 'upload_chatgpt_export':
         try { await importOrchestrator.handleUploadExport(ws, msg.data, PROFILES_DIR); }
         catch (err) { ws.send(JSON.stringify({ type: 'import_error', message: `Failed to parse export: ${err.message}` })); }
@@ -269,6 +282,11 @@ wss.on('connection', (ws) => {
         collectionOrchestrator.abort(ws);
         break;
     }
+  });
+
+  // Send Claude CLI status on connect (async, runs after handler is ready)
+  checkHealth().then(health => {
+    if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'claude_status', ...health }));
   });
 });
 
