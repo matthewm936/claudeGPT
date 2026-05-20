@@ -116,7 +116,8 @@ function runWhisperCpp(filePath, modelPath, signal) {
 
 function runPythonWhisper(filePath, signal) {
   return new Promise((resolve, reject) => {
-    const proc = spawn('whisper', [filePath, '--model', 'base.en', '--output_format', 'txt'], {
+    const outputDir = path.dirname(filePath);
+    const proc = spawn('whisper', [filePath, '--model', 'base.en', '--output_format', 'txt', '--output_dir', outputDir], {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
