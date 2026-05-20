@@ -43,6 +43,10 @@ export function init(profilesDir) {
   const profiles = list(profilesDir);
   if (profiles.length === 1) {
     select(profiles[0].name, profilesDir);
+  } else if (profiles.length === 0) {
+    // Auto-create default profile so new users skip the profile picker
+    const name = create('me', profilesDir);
+    select(name, profilesDir);
   }
 }
 
